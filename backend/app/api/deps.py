@@ -1,9 +1,10 @@
 from collections.abc import Generator
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import ForbiddenException, InvalidTokenError, UnauthorizedException
 from app.core.security import decode_access_token
 from app.db.session import SessionLocal
 from app.models.user import User, UserRole
@@ -36,37 +37,28 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     user_repository: UserRepository = Depends(get_user_repository),
 ) -> User:
-    credentials_error = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
     if credentials is None:
-        raise credentials_error
+        raise UnauthorizedException()
 
     payload = decode_access_token(credentials.credentials)
     if payload is None or "sub" not in payload:
-        raise credentials_error
+        raise InvalidTokenError()
 
     try:
         user_id = int(payload["sub"])
     except (TypeError, ValueError):
-        raise credentials_error
+        raise InvalidTokenError()
 
     user = user_repository.get_by_id(user_id)
     if user is None:
-        raise credentials_error
+        raise InvalidTokenError()
     return user
 
 
 def require_roles(*roles: UserRole):
     def checker(current_user: User = Depends(get_current_user)) -> User:
         if current_user.role not in roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have permission to do this",
-            )
+            raise ForbiddenException()
         return current_user
 
     return checker
