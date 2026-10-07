@@ -74,3 +74,13 @@ class InvalidCredentialsError(UnauthorizedException):
 class InvalidTokenError(UnauthorizedException):
     error_code = "INVALID_TOKEN"
     message = "Could not validate credentials"
+
+
+class ProfileAlreadyExistsError(ConflictException):
+    error_code = "PROFILE_ALREADY_EXISTS"
+    message = "You already have a profile"
+
+
+class ProfileNotFoundError(NotFoundException):
+    error_code = "PROFILE_NOT_FOUND"
+    message = "Profile not found"

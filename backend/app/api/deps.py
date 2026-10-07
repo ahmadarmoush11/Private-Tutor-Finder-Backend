@@ -8,8 +8,12 @@ from app.core.exceptions import ForbiddenException, InvalidTokenError, Unauthori
 from app.core.security import decode_access_token
 from app.db.session import SessionLocal
 from app.models.user import User, UserRole
+from app.repositories.client_profile_repository import ClientProfileRepository
+from app.repositories.tutor_profile_repository import TutorProfileRepository
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
+from app.services.client_profile_service import ClientProfileService
+from app.services.tutor_profile_service import TutorProfileService
 
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -27,10 +31,38 @@ def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
     return UserRepository(db)
 
 
+def get_client_profile_repository(
+    db: Session = Depends(get_db),
+) -> ClientProfileRepository:
+    return ClientProfileRepository(db)
+
+
+def get_tutor_profile_repository(
+    db: Session = Depends(get_db),
+) -> TutorProfileRepository:
+    return TutorProfileRepository(db)
+
+
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
 ) -> AuthService:
     return AuthService(user_repository)
+
+
+def get_client_profile_service(
+    client_profile_repository: ClientProfileRepository = Depends(
+        get_client_profile_repository
+    ),
+) -> ClientProfileService:
+    return ClientProfileService(client_profile_repository)
+
+
+def get_tutor_profile_service(
+    tutor_profile_repository: TutorProfileRepository = Depends(
+        get_tutor_profile_repository
+    ),
+) -> TutorProfileService:
+    return TutorProfileService(tutor_profile_repository)
 
 
 def get_current_user(
@@ -62,3 +94,8 @@ def require_roles(*roles: UserRole):
         return current_user
 
     return checker
+
+
+require_admin = require_roles(UserRole.ADMIN)
+require_client = require_roles(UserRole.CLIENT)
+require_tutor = require_roles(UserRole.TUTOR)

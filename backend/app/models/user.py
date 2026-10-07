@@ -1,15 +1,20 @@
 import enum
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Enum, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.client_profile import ClientProfile
+    from app.models.tutor_profile import TutorProfile
 
 
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
-    CLIENT = "client"  
+    CLIENT = "client"
     TUTOR = "tutor"
 
 
@@ -34,6 +39,25 @@ class User(Base):
         DateTime(timezone=True),
         server_default=func.now(),
     )
+
+    client_profile: Mapped["ClientProfile | None"] = relationship(
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    tutor_profile: Mapped["TutorProfile | None"] = relationship(
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+    @property
+    def has_profile(self) -> bool:
+        if self.role == UserRole.CLIENT:
+            return self.client_profile is not None
+        if self.role == UserRole.TUTOR:
+            return self.tutor_profile is not None
+        return True
 
     def __repr__(self) -> str:
         return f"<User id={self.id} email={self.email!r} role={self.role.value}>"
