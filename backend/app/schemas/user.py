@@ -12,7 +12,6 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=72)
     phone_number: str | None = Field(default=None, max_length=20)
-    # Admins can't be created through public registration.
     role: Literal["client", "tutor"] = "client"
 
     @field_validator("first_name", "last_name")
@@ -31,10 +30,14 @@ class UserRegister(BaseModel):
     @field_validator("password")
     @classmethod
     def password_byte_length(cls, value: str) -> str:
-        # bcrypt only accepts up to 72 bytes.
         if len(value.encode("utf-8")) > 72:
             raise ValueError("password is too long")
         return value
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
 
 class UserOut(BaseModel):

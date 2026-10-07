@@ -12,14 +12,3 @@ app = FastAPI(
 
 app.include_router(auth.router)
 
-
-@app.get("/")
-def root():
-    return {"message": "Private Tutor Finder API"}
-
-
-@app.get("/db-test")
-def database_test():
-    with engine.connect() as connection:
-        result = connection.execute(text("SELECT 1"))
-        return {"database": result.scalar()}

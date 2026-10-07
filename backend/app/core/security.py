@@ -26,7 +26,6 @@ def create_access_token(subject: str | int, role: str) -> str:
 
 
 def decode_access_token(token: str) -> dict | None:
-    """Return the token payload, or None if the token is invalid or expired."""
     try:
         return jwt.decode(
             token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]

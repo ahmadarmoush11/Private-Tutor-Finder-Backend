@@ -1,15 +1,17 @@
 from collections.abc import Generator
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.security import decode_access_token
 from app.db.session import SessionLocal
 from app.models.user import User, UserRole
+from app.repositories.user_repository import UserRepository
+from app.services.auth_service import AuthService
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -20,9 +22,19 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
+def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
+    return UserRepository(db)
+
+
+def get_auth_service(
+    user_repository: UserRepository = Depends(get_user_repository),
+) -> AuthService:
+    return AuthService(user_repository)
+
+
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    user_repository: UserRepository = Depends(get_user_repository),
 ) -> User:
     credentials_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -30,7 +42,10 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    payload = decode_access_token(token)
+    if credentials is None:
+        raise credentials_error
+
+    payload = decode_access_token(credentials.credentials)
     if payload is None or "sub" not in payload:
         raise credentials_error
 
@@ -39,16 +54,13 @@ def get_current_user(
     except (TypeError, ValueError):
         raise credentials_error
 
-    user = db.get(User, user_id)
+    user = user_repository.get_by_id(user_id)
     if user is None:
         raise credentials_error
     return user
 
 
 def require_roles(*roles: UserRole):
-    """Use as a dependency to restrict an endpoint, e.g.
-    Depends(require_roles(UserRole.ADMIN))."""
-
     def checker(current_user: User = Depends(get_current_user)) -> User:
         if current_user.role not in roles:
             raise HTTPException(
