@@ -2,6 +2,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    API_PREFIX: str = "/api/v1"
+
     DATABASE_URL: str
 
     JWT_SECRET_KEY: str

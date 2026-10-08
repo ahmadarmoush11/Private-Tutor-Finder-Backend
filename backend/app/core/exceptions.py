@@ -84,3 +84,18 @@ class ProfileAlreadyExistsError(ConflictException):
 class ProfileNotFoundError(NotFoundException):
     error_code = "PROFILE_NOT_FOUND"
     message = "Profile not found"
+
+
+class PostNotFoundError(NotFoundException):
+    error_code = "POST_NOT_FOUND"
+    message = "Post not found"
+
+
+class PostAccessDeniedError(ForbiddenException):
+    error_code = "POST_ACCESS_DENIED"
+    message = "You can only modify your own posts"
+
+
+class ClassLevelNotFoundError(NotFoundException):
+    error_code = "CLASS_LEVEL_NOT_FOUND"
+    message = "Class level not found"
