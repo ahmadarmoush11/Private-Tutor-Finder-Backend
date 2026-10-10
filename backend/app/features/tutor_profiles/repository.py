@@ -10,6 +10,9 @@ class TutorProfileRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def get_by_id(self, profile_id: int) -> TutorProfile | None:
+        return self.db.get(TutorProfile, profile_id)
+
     def get_by_user_id(self, user_id: int) -> TutorProfile | None:
         return self.db.scalar(
             select(TutorProfile).where(TutorProfile.user_id == user_id)

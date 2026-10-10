@@ -25,6 +25,17 @@ def create_post(
 
 
 @router.get(
+    "/me/posts",
+    response_model=list[ClientPostResponse],
+)
+def get_my_posts(
+    current_user: ClientUser,
+    service: ClientPostServiceDep,
+):
+    return service.get_my_posts(current_user.id)
+
+
+@router.get(
     "/posts/{post_id}",
     dependencies=[Depends(get_current_user)],
 )

@@ -8,6 +8,7 @@ from app.db.base import Base
 from app.db.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.features.tutor_posts.model import TutorPost
     from app.features.users.model import User
 
 
@@ -39,3 +40,7 @@ class TutorProfile(TimestampMixin, Base):
     )
 
     user: Mapped["User"] = relationship(back_populates="tutor_profile")
+    posts: Mapped[list["TutorPost"]] = relationship(
+        back_populates="tutor",
+        cascade="all, delete-orphan",
+    )

@@ -125,6 +125,17 @@ class ClientPostService:
         return list_of_posts
 
 
+    def get_my_posts(
+        self,
+        user_id: int,
+    ) -> list[ClientPostResponse]:
+        client_profile = self.client_profile_repository.get_by_user_id(user_id)
+        if client_profile is None:
+            raise ProfileNotFoundError("Client profile does not exist")
+
+        posts = self.client_post_repository.get_client_posts(client_profile.id)
+        return [self._to_response(post) for post in posts]
+
     def update_post(
         self,
         user_id: int,

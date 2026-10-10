@@ -9,6 +9,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.features.client_posts.model import ClientPost
+    from app.features.tutor_posts.model import TutorPost
 
 
 class EducationLevel(str, enum.Enum):
@@ -56,6 +57,10 @@ class ClassLevel(Base):
     )
 
     posts: Mapped[list["ClientPost"]] = relationship(back_populates="class_level")
+    tutor_posts: Mapped[list["TutorPost"]] = relationship(
+        secondary="tutor_post_class_levels",
+        back_populates="class_levels",
+    )
 
     @validates("name")
     def _set_level_from_name(self, key: str, value: str) -> str:

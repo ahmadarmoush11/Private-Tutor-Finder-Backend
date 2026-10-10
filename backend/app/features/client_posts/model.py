@@ -1,4 +1,3 @@
-import enum
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Enum, ForeignKey, String, Text
@@ -6,21 +5,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.db.mixins import TimestampMixin
+from app.shared.enums import LessonLocation, PostStatus
 
 if TYPE_CHECKING:
     from app.features.class_levels.model import ClassLevel
     from app.features.client_profiles.model import ClientProfile
-
-
-class PostStatus(str, enum.Enum):
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-
-
-class LessonLocation(str, enum.Enum):
-    CLIENT_HOME = "client_home"
-    TUTOR_HOME = "tutor_home"
-    ANY = "any"
 
 
 class ClientPost(TimestampMixin, Base):
