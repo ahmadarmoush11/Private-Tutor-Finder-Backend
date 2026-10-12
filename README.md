@@ -14,6 +14,7 @@ This repository is the backend only. It's built with **FastAPI**, **SQLAlchemy 2
 - **Profiles** — after signing up, each client or tutor creates their profile (school and location for clients; workplace, degree, experience level and a short summary for tutors).
 - **Class levels** — KG1 to Grade 12 plus University, each grouped automatically into Preschool, Elementary, Intermediate, Secondary or Higher Education.
 - **Client posts** — clients publish what they're looking for, including where the lessons should take place (at their home, at the tutor's, or either). They can edit, deactivate or delete their own posts.
+- **Tutor posts** — tutors advertise their lessons, covering one or several class levels at once, with the same location options. They can edit, deactivate or delete their own posts.
 - **Permissions** — every endpoint checks who you are and what role you have. Clients can only touch their own data, and a client's private profile is visible to admins only.
 
 ---
@@ -204,6 +205,7 @@ A few rules that keep the code predictable as it grows:
 - **Services raise errors from `app/core/exceptions.py`** (for example `PostNotFoundError`). They never build HTTP responses — the error handlers do that.
 - **Routes check roles with type hints**: `current_user: ClientUser`, `TutorUser`, `AdminUser`, or `CurrentUser` for any logged-in user.
 - **The JWT only holds the user id and role.** Everything else is loaded from the database on each request, so it's never stale.
+- **The API identifies people by their user id.** URLs such as `/tutors/{user_id}/posts` and the `author` field on posts always use the user id. Profile ids are internal links between tables and never appear in the API.
 
 ### Adding a new feature
 
@@ -243,3 +245,10 @@ Things planned or worth adding as the project grows:
 - Searching and filtering tutors and posts, with pagination
 - Refresh tokens, email verification and password reset
 - Bookings between clients and tutors
+
+Before going live:
+
+- **Public ids instead of database ids.** URLs and responses currently use the database's sequential ids (`/tutors/3/posts`), which let anyone guess how many users there are or walk through them one by one. Add a `public_id` (UUID) column to the tables whose ids appear in the API — at least users and posts — and use it in URLs and responses only. Database links between tables stay as integers. Best done before the frontend is built on top of the current ids.
+- **Protect private contact details.** Any logged-in user can currently see a post's `address_details` and `phone_number`. Show only the general `location` publicly and reveal the rest once a match is made.
+- **Turn off the development seed accounts** and create the real admin by hand with a strong password.
+- **Production settings:** CORS for the frontend's domain, rate limiting on login and sign-up, and hiding `/docs`.
