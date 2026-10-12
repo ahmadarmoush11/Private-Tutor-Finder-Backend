@@ -1,16 +1,20 @@
 from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.features.class_levels.schemas import ClassLevelOut
+from app.shared.enums import LessonLocation, PostStatus
 from app.shared.schemas import OptionalText
-from app.features.client_posts.model import LessonLocation, PostStatus
+
 
 class ClientPostCreate(BaseModel):
     class_level_id: int
-    school_name: str|None
+    school_name: OptionalText = None
     lesson_location: LessonLocation = LessonLocation.ANY
-    location: str|None
-    address_details: str
-    phone_number: str
-    description: str
+    location: OptionalText = None
+    address_details: str = Field(min_length=1, max_length=255)
+    phone_number: str = Field(min_length=1, max_length=20)
+    description: str = Field(min_length=1)
 
 
 class ClientPostUpdate(BaseModel):
@@ -39,14 +43,18 @@ class ClientPostUpdate(BaseModel):
 
 
 class ClientPostResponse(BaseModel):
-    post_id: int
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
     client_id: int
     class_level_id: int
-    school_name: str|None
+    class_level: ClassLevelOut
+    school_name: str | None
     lesson_location: LessonLocation
     status: PostStatus
-    location: str|None
+    location: str | None
     address_details: str
     phone_number: str
     description: str
-
+    created_at: datetime
+    updated_at: datetime
