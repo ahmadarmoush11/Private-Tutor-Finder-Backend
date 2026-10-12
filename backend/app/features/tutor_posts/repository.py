@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.features.tutor_posts.model import TutorPost
+from app.features.tutor_profiles.model import TutorProfile
 
 
 class TutorPostRepository:
@@ -11,7 +12,10 @@ class TutorPostRepository:
     def get_by_id(self, post_id: int) -> TutorPost | None:
         return self.db.scalar(
             select(TutorPost)
-            .options(selectinload(TutorPost.class_levels))
+            .options(
+                selectinload(TutorPost.class_levels),
+                selectinload(TutorPost.tutor).selectinload(TutorProfile.user),
+            )
             .where(TutorPost.id == post_id)
         )
 
@@ -19,7 +23,10 @@ class TutorPostRepository:
         return list(
             self.db.scalars(
                 select(TutorPost)
-                .options(selectinload(TutorPost.class_levels))
+                .options(
+                    selectinload(TutorPost.class_levels),
+                    selectinload(TutorPost.tutor).selectinload(TutorProfile.user),
+                )
                 .where(TutorPost.tutor_id == tutor_id)
                 .order_by(TutorPost.created_at.desc(), TutorPost.id.desc())
             )

@@ -42,10 +42,11 @@ class ClientPostService:
             raise PostNotFoundError()
         return post
 
-    def get_client_posts(self, client_id: int) -> list[ClientPost]:
-        if self.client_profile_repository.get_client_profile(client_id) is None:
+    def get_client_posts(self, user_id: int) -> list[ClientPost]:
+        client_profile = self.client_profile_repository.get_by_user_id(user_id)
+        if client_profile is None:
             raise ProfileNotFoundError("Client profile not found")
-        return self.client_post_repository.get_by_client_id(client_id)
+        return self.client_post_repository.get_by_client_id(client_profile.id)
 
     def get_my_posts(self, user_id: int) -> list[ClientPost]:
         client_profile = self._get_client_profile_of_user(user_id)

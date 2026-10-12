@@ -46,15 +46,15 @@ def get_post(
 
 
 @router.get(
-    "/{client_id}/posts",
+    "/{user_id}/posts",
     response_model=list[ClientPostResponse],
     dependencies=[Depends(get_current_user)],
 )
 def get_client_posts(
-    client_id: int,
+    user_id: int,
     service: ClientPostServiceDep,
 ):
-    return service.get_client_posts(client_id)
+    return service.get_client_posts(user_id)
 
 
 @router.patch("/posts/{post_id}", response_model=ClientPostResponse)

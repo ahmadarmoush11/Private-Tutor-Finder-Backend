@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.features.client_posts.model import ClientPost
+from app.features.client_profiles.model import ClientProfile
 
 
 class ClientPostRepository:
@@ -11,7 +12,10 @@ class ClientPostRepository:
     def get_by_id(self, post_id: int) -> ClientPost | None:
         return self.db.scalar(
             select(ClientPost)
-            .options(selectinload(ClientPost.class_level))
+            .options(
+                selectinload(ClientPost.class_level),
+                selectinload(ClientPost.client).selectinload(ClientProfile.user),
+            )
             .where(ClientPost.id == post_id)
         )
 
@@ -19,7 +23,10 @@ class ClientPostRepository:
         return list(
             self.db.scalars(
                 select(ClientPost)
-                .options(selectinload(ClientPost.class_level))
+                .options(
+                    selectinload(ClientPost.class_level),
+                    selectinload(ClientPost.client).selectinload(ClientProfile.user),
+                )
                 .where(ClientPost.client_id == client_id)
                 .order_by(ClientPost.created_at.desc(), ClientPost.id.desc())
             )

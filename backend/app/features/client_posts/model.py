@@ -10,6 +10,7 @@ from app.shared.enums import LessonLocation, PostStatus
 if TYPE_CHECKING:
     from app.features.class_levels.model import ClassLevel
     from app.features.client_profiles.model import ClientProfile
+    from app.features.users.model import User
 
 
 class ClientPost(TimestampMixin, Base):
@@ -52,3 +53,7 @@ class ClientPost(TimestampMixin, Base):
 
     client: Mapped["ClientProfile"] = relationship(back_populates="posts")
     class_level: Mapped["ClassLevel"] = relationship(back_populates="posts")
+
+    @property
+    def author(self) -> "User":
+        return self.client.user

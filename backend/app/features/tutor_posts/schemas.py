@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.features.class_levels.schemas import ClassLevelOut
+from app.features.users.schemas import UserSummary
 from app.shared.enums import LessonLocation, PostStatus
 from app.shared.schemas import OptionalText
 
@@ -58,7 +59,7 @@ class TutorPostResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    tutor_id: int
+    author: UserSummary
     class_levels: list[ClassLevelOut]
     lesson_location: LessonLocation
     status: PostStatus

@@ -47,10 +47,11 @@ class TutorPostService:
             raise PostNotFoundError()
         return post
 
-    def get_tutor_posts(self, tutor_id: int) -> list[TutorPost]:
-        if self.tutor_profile_repository.get_by_id(tutor_id) is None:
+    def get_tutor_posts(self, user_id: int) -> list[TutorPost]:
+        tutor_profile = self.tutor_profile_repository.get_by_user_id(user_id)
+        if tutor_profile is None:
             raise ProfileNotFoundError("Tutor profile not found")
-        return self.tutor_post_repository.get_by_tutor_id(tutor_id)
+        return self.tutor_post_repository.get_by_tutor_id(tutor_profile.id)
 
     def get_my_posts(self, user_id: int) -> list[TutorPost]:
         tutor_profile = self._get_tutor_profile_of_user(user_id)

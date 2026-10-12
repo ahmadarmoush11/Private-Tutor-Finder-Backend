@@ -10,6 +10,7 @@ from app.shared.enums import LessonLocation, PostStatus
 if TYPE_CHECKING:
     from app.features.class_levels.model import ClassLevel
     from app.features.tutor_profiles.model import TutorProfile
+    from app.features.users.model import User
 
 
 tutor_post_class_levels = Table(
@@ -67,3 +68,7 @@ class TutorPost(TimestampMixin, Base):
         secondary=tutor_post_class_levels,
         back_populates="tutor_posts",
     )
+
+    @property
+    def author(self) -> "User":
+        return self.tutor.user
