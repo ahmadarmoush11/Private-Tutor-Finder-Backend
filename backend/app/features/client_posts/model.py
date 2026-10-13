@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum, ForeignKey, String, Text
+from sqlalchemy import Column, Enum, ForeignKey, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -10,7 +10,25 @@ from app.shared.enums import LessonLocation, PostStatus
 if TYPE_CHECKING:
     from app.features.class_levels.model import ClassLevel
     from app.features.client_profiles.model import ClientProfile
+    from app.features.subjects.model import Subject
     from app.features.users.model import User
+
+
+client_post_subjects = Table(
+    "client_post_subjects",
+    Base.metadata,
+    Column(
+        "client_post_id",
+        ForeignKey("client_posts.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "subject_id",
+        ForeignKey("subjects.id", ondelete="RESTRICT"),
+        primary_key=True,
+        index=True,
+    ),
+)
 
 
 class ClientPost(TimestampMixin, Base):
@@ -53,6 +71,11 @@ class ClientPost(TimestampMixin, Base):
 
     client: Mapped["ClientProfile"] = relationship(back_populates="posts")
     class_level: Mapped["ClassLevel"] = relationship(back_populates="posts")
+    subjects: Mapped[list["Subject"]] = relationship(
+        secondary=client_post_subjects,
+        back_populates="client_posts",
+        order_by="Subject.name",
+    )
 
     @property
     def author(self) -> "User":

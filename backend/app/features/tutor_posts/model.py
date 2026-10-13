@@ -9,6 +9,7 @@ from app.shared.enums import LessonLocation, PostStatus
 
 if TYPE_CHECKING:
     from app.features.class_levels.model import ClassLevel
+    from app.features.subjects.model import Subject
     from app.features.tutor_profiles.model import TutorProfile
     from app.features.users.model import User
 
@@ -24,6 +25,23 @@ tutor_post_class_levels = Table(
     Column(
         "class_level_id",
         ForeignKey("class_levels.id", ondelete="RESTRICT"),
+        primary_key=True,
+        index=True,
+    ),
+)
+
+
+tutor_post_subjects = Table(
+    "tutor_post_subjects",
+    Base.metadata,
+    Column(
+        "tutor_post_id",
+        ForeignKey("tutor_posts.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "subject_id",
+        ForeignKey("subjects.id", ondelete="RESTRICT"),
         primary_key=True,
         index=True,
     ),
@@ -67,6 +85,11 @@ class TutorPost(TimestampMixin, Base):
     class_levels: Mapped[list["ClassLevel"]] = relationship(
         secondary=tutor_post_class_levels,
         back_populates="tutor_posts",
+    )
+    subjects: Mapped[list["Subject"]] = relationship(
+        secondary=tutor_post_subjects,
+        back_populates="tutor_posts",
+        order_by="Subject.name",
     )
 
     @property

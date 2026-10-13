@@ -19,3 +19,7 @@ OptionalLongText = Annotated[
     Annotated[str, StringConstraints(max_length=1000)] | None,
     BeforeValidator(_strip_to_none),
 ]
+
+
+def unique_ids(values: list[int]) -> list[int]:
+    return list(dict.fromkeys(values))

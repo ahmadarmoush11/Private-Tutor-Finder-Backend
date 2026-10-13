@@ -14,6 +14,7 @@ class ClientPostRepository:
             select(ClientPost)
             .options(
                 selectinload(ClientPost.class_level),
+                selectinload(ClientPost.subjects),
                 selectinload(ClientPost.client).selectinload(ClientProfile.user),
             )
             .where(ClientPost.id == post_id)
@@ -25,6 +26,7 @@ class ClientPostRepository:
                 select(ClientPost)
                 .options(
                     selectinload(ClientPost.class_level),
+                    selectinload(ClientPost.subjects),
                     selectinload(ClientPost.client).selectinload(ClientProfile.user),
                 )
                 .where(ClientPost.client_id == client_id)

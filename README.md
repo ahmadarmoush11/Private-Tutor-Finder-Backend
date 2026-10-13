@@ -13,8 +13,9 @@ This repository is the backend only. It's built with **FastAPI**, **SQLAlchemy 2
 - **Accounts** — sign up as a client or a tutor, log in, and get a JWT token. Admin accounts can't be created through sign-up.
 - **Profiles** — after signing up, each client or tutor creates their profile (school and location for clients; workplace, degree, experience level and a short summary for tutors).
 - **Class levels** — KG1 to Grade 12 plus University, each grouped automatically into Preschool, Elementary, Intermediate, Secondary or Higher Education.
-- **Client posts** — clients publish what they're looking for, including where the lessons should take place (at their home, at the tutor's, or either). They can edit, deactivate or delete their own posts.
-- **Tutor posts** — tutors advertise their lessons, covering one or several class levels at once, with the same location options. They can edit, deactivate or delete their own posts.
+- **Subjects** — Arabic, English, Math, Physics and so on. Anyone can list them; only admins can add, rename or delete them, and a subject that's used by posts can't be deleted.
+- **Client posts** — clients publish what they're looking for: the subjects they need, their class level, and where the lessons should take place (at their home, at the tutor's, or either). They can edit, deactivate or delete their own posts.
+- **Tutor posts** — tutors advertise their lessons, covering one or several subjects and class levels at once, with the same location options. They can edit, deactivate or delete their own posts.
 - **Permissions** — every endpoint checks who you are and what role you have. Clients can only touch their own data, and a client's private profile is visible to admins only.
 
 ---
@@ -142,7 +143,8 @@ Validation errors also include a `details` list telling you which field was wron
 
 When the server starts, it fills in anything that's missing — it never duplicates rows, so restarting is always safe:
 
-- **Class levels** — KG1–KG3, Grade 1–12 and University.
+- **Class levels** — KG1–KG3, Grade 1–12 and University. Any missing level is added back.
+- **Subjects** — Arabic, English, Math, Physics, Chemistry, Life and Earth Science, Geography and History. These are added only once, when the subjects table is empty, so an admin's later changes are never overwritten.
 - **Development accounts**, so you can log in straight away:
 
 | Role | Email | Password |

@@ -5,11 +5,13 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from app.features.class_levels.schemas import ClassLevelOut
 from app.features.users.schemas import UserSummary
 from app.shared.enums import LessonLocation, PostStatus
-from app.shared.schemas import OptionalText
+from app.features.subjects.schemas import SubjectOut
+from app.shared.schemas import OptionalText, unique_ids
 
 
 class ClientPostCreate(BaseModel):
     class_level_id: int
+    subject_ids: list[int] = Field(min_length=1)
     school_name: OptionalText = None
     lesson_location: LessonLocation = LessonLocation.ANY
     location: OptionalText = None
@@ -17,9 +19,15 @@ class ClientPostCreate(BaseModel):
     phone_number: str = Field(min_length=1, max_length=20)
     description: str = Field(min_length=1)
 
+    @field_validator("subject_ids")
+    @classmethod
+    def remove_duplicate_ids(cls, value: list[int]) -> list[int]:
+        return unique_ids(value)
+
 
 class ClientPostUpdate(BaseModel):
     class_level_id: int | None = None
+    subject_ids: list[int] | None = Field(default=None, min_length=1)
     school_name: OptionalText = None
     lesson_location: LessonLocation | None = None
     status: PostStatus | None = None
@@ -30,6 +38,7 @@ class ClientPostUpdate(BaseModel):
 
     @field_validator(
         "class_level_id",
+        "subject_ids",
         "lesson_location",
         "status",
         "address_details",
@@ -42,6 +51,11 @@ class ClientPostUpdate(BaseModel):
             raise ValueError("cannot be null")
         return value
 
+    @field_validator("subject_ids")
+    @classmethod
+    def remove_duplicate_ids(cls, value: list[int]) -> list[int]:
+        return unique_ids(value)
+
 
 class ClientPostResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -50,6 +64,7 @@ class ClientPostResponse(BaseModel):
     author: UserSummary
     class_level_id: int
     class_level: ClassLevelOut
+    subjects: list[SubjectOut]
     school_name: str | None
     lesson_location: LessonLocation
     status: PostStatus

@@ -14,6 +14,7 @@ class TutorPostRepository:
             select(TutorPost)
             .options(
                 selectinload(TutorPost.class_levels),
+                selectinload(TutorPost.subjects),
                 selectinload(TutorPost.tutor).selectinload(TutorProfile.user),
             )
             .where(TutorPost.id == post_id)
@@ -25,6 +26,7 @@ class TutorPostRepository:
                 select(TutorPost)
                 .options(
                     selectinload(TutorPost.class_levels),
+                    selectinload(TutorPost.subjects),
                     selectinload(TutorPost.tutor).selectinload(TutorProfile.user),
                 )
                 .where(TutorPost.tutor_id == tutor_id)

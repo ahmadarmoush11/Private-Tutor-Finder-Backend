@@ -5,29 +5,28 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from app.features.class_levels.schemas import ClassLevelOut
 from app.features.users.schemas import UserSummary
 from app.shared.enums import LessonLocation, PostStatus
-from app.shared.schemas import OptionalText
-
-
-def _unique_ids(values: list[int]) -> list[int]:
-    return list(dict.fromkeys(values))
+from app.features.subjects.schemas import SubjectOut
+from app.shared.schemas import OptionalText, unique_ids
 
 
 class TutorPostCreate(BaseModel):
     class_level_ids: list[int] = Field(min_length=1)
+    subject_ids: list[int] = Field(min_length=1)
     lesson_location: LessonLocation = LessonLocation.ANY
     location: OptionalText = None
     address_details: str = Field(min_length=1, max_length=255)
     phone_number: str = Field(min_length=1, max_length=20)
     description: str = Field(min_length=1)
 
-    @field_validator("class_level_ids")
+    @field_validator("class_level_ids", "subject_ids")
     @classmethod
-    def unique_class_level_ids(cls, value: list[int]) -> list[int]:
-        return _unique_ids(value)
+    def remove_duplicate_ids(cls, value: list[int]) -> list[int]:
+        return unique_ids(value)
 
 
 class TutorPostUpdate(BaseModel):
     class_level_ids: list[int] | None = Field(default=None, min_length=1)
+    subject_ids: list[int] | None = Field(default=None, min_length=1)
     lesson_location: LessonLocation | None = None
     status: PostStatus | None = None
     location: OptionalText = None
@@ -37,6 +36,7 @@ class TutorPostUpdate(BaseModel):
 
     @field_validator(
         "class_level_ids",
+        "subject_ids",
         "lesson_location",
         "status",
         "address_details",
@@ -49,10 +49,10 @@ class TutorPostUpdate(BaseModel):
             raise ValueError("cannot be null")
         return value
 
-    @field_validator("class_level_ids")
+    @field_validator("class_level_ids", "subject_ids")
     @classmethod
-    def unique_class_level_ids(cls, value: list[int]) -> list[int]:
-        return _unique_ids(value)
+    def remove_duplicate_ids(cls, value: list[int]) -> list[int]:
+        return unique_ids(value)
 
 
 class TutorPostResponse(BaseModel):
@@ -61,6 +61,7 @@ class TutorPostResponse(BaseModel):
     id: int
     author: UserSummary
     class_levels: list[ClassLevelOut]
+    subjects: list[SubjectOut]
     lesson_location: LessonLocation
     status: PostStatus
     location: str | None
