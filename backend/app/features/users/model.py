@@ -1,11 +1,12 @@
 import enum
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum, String, func
+from sqlalchemy import Date, DateTime, Enum, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.shared.dates import calculate_age
 
 if TYPE_CHECKING:
     from app.features.client_profiles.model import ClientProfile
@@ -27,6 +28,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     phone_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
     role: Mapped[UserRole] = mapped_column(
         Enum(
             UserRole,
@@ -50,6 +52,12 @@ class User(Base):
         uselist=False,
         cascade="all, delete-orphan",
     )
+
+    @property
+    def age(self) -> int | None:
+        if self.date_of_birth is None:
+            return None
+        return calculate_age(self.date_of_birth)
 
     @property
     def has_profile(self) -> bool:

@@ -1,8 +1,10 @@
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.features.users.schemas import UserOut
+from app.shared.dates import calculate_age
 
 
 class UserRegister(BaseModel):
@@ -11,6 +13,7 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=72)
     phone_number: str | None = Field(default=None, max_length=20)
+    date_of_birth: date
     role: Literal["client", "tutor"] = "client"
 
     @field_validator("first_name", "last_name")
@@ -25,6 +28,15 @@ class UserRegister(BaseModel):
     @classmethod
     def lowercase_email(cls, value: str) -> str:
         return value.lower()
+
+    @field_validator("date_of_birth")
+    @classmethod
+    def realistic_date_of_birth(cls, value: date) -> date:
+        if value > date.today():
+            raise ValueError("cannot be in the future")
+        if calculate_age(value) > 120:
+            raise ValueError("is not a realistic date of birth")
+        return value
 
     @field_validator("password")
     @classmethod

@@ -23,6 +23,7 @@ class AuthService:
             email=data.email,
             password_hash=hash_password(data.password),
             phone_number=data.phone_number,
+            date_of_birth=data.date_of_birth,
             role=UserRole(data.role),
         )
         with self.uow:
