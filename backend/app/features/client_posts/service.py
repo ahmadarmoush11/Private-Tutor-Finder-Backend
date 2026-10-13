@@ -4,8 +4,10 @@ from app.core.exceptions import (
     PostNotFoundError,
     ProfileNotFoundError,
     SubjectNotFoundError,
+    ViewAccessDeniedError,
 )
 from app.db.unit_of_work import UnitOfWork
+from app.features.users.model import User, UserRole
 from app.features.class_levels.repository import ClassLevelRepository
 from app.features.client_posts.model import ClientPost
 from app.features.client_posts.repository import ClientPostRepository
@@ -46,13 +48,19 @@ class ClientPostService:
             post = self.client_post_repository.create(post)
         return post
 
+    def get_post_for_viewer(self, post_id: int, viewer: User) -> ClientPost:
+        post = self.get_post(post_id)
+        self._ensure_can_view(viewer, post.client.user_id)
+        return post
+
     def get_post(self, post_id: int) -> ClientPost:
         post = self.client_post_repository.get_by_id(post_id)
         if post is None:
             raise PostNotFoundError()
         return post
 
-    def get_client_posts(self, user_id: int) -> list[ClientPost]:
+    def get_client_posts(self, user_id: int, viewer: User) -> list[ClientPost]:
+        self._ensure_can_view(viewer, user_id)
         client_profile = self.client_profile_repository.get_by_user_id(user_id)
         if client_profile is None:
             raise ProfileNotFoundError("Client profile not found")
@@ -113,3 +121,8 @@ class ClientPostService:
         if missing_ids:
             raise SubjectNotFoundError(details={"missing_ids": missing_ids})
         return subjects
+
+    @staticmethod
+    def _ensure_can_view(viewer: User, owner_user_id: int) -> None:
+        if viewer.role == UserRole.CLIENT and viewer.id != owner_user_id:
+            raise ViewAccessDeniedError("Clients can only view their own posts")

@@ -114,3 +114,8 @@ class SubjectAlreadyExistsError(ConflictException):
 class SubjectInUseError(ConflictException):
     error_code = "SUBJECT_IN_USE"
     message = "This subject is used by existing posts and cannot be deleted"
+
+
+class ViewAccessDeniedError(ForbiddenException):
+    error_code = "VIEW_ACCESS_DENIED"
+    message = "You don't have permission to view this"

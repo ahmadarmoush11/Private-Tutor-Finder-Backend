@@ -1,7 +1,11 @@
-from app.core.exceptions import ProfileAlreadyExistsError, ProfileNotFoundError
+from app.core.exceptions import (
+    ProfileAlreadyExistsError,
+    ProfileNotFoundError,
+    ViewAccessDeniedError,
+)
 from app.db.unit_of_work import UnitOfWork
 from app.features.tutor_profiles.model import TutorProfile
-from app.features.users.model import User
+from app.features.users.model import User, UserRole
 from app.features.tutor_profiles.repository import TutorProfileRepository
 from app.features.tutor_profiles.schemas import TutorProfileCreate, TutorProfileUpdate
 
@@ -10,6 +14,11 @@ class TutorProfileService:
     def __init__(self, tutor_profile_repository: TutorProfileRepository, uow: UnitOfWork):
         self.tutor_profile_repository = tutor_profile_repository
         self.uow = uow
+
+    def get_profile_for_viewer(self, user_id: int, viewer: User) -> TutorProfile:
+        if viewer.role == UserRole.TUTOR and viewer.id != user_id:
+            raise ViewAccessDeniedError("Tutors can only view their own profile")
+        return self.get_by_user_id(user_id)
 
     def get_by_user_id(self, user_id: int) -> TutorProfile:
         profile = self.tutor_profile_repository.get_by_user_id(user_id)

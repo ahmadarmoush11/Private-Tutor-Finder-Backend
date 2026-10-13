@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 
-from app.features.auth.dependencies import TutorUser, get_current_user
+from app.features.auth.dependencies import CurrentUser, TutorUser
 from app.features.tutor_profiles.dependencies import TutorProfileServiceDep
 from app.features.tutor_profiles.schemas import (
     TutorProfileCreate,
@@ -42,7 +42,10 @@ def update_my_profile(
 @router.get(
     "/{user_id}/profile",
     response_model=TutorProfileOut,
-    dependencies=[Depends(get_current_user)],
 )
-def get_tutor_profile(user_id: int, service: TutorProfileServiceDep):
-    return service.get_by_user_id(user_id)
+def get_tutor_profile(
+    user_id: int,
+    current_user: CurrentUser,
+    service: TutorProfileServiceDep,
+):
+    return service.get_profile_for_viewer(user_id, current_user)

@@ -4,8 +4,10 @@ from app.core.exceptions import (
     PostNotFoundError,
     ProfileNotFoundError,
     SubjectNotFoundError,
+    ViewAccessDeniedError,
 )
 from app.db.unit_of_work import UnitOfWork
+from app.features.users.model import User, UserRole
 from app.features.class_levels.model import ClassLevel
 from app.features.class_levels.repository import ClassLevelRepository
 from app.features.subjects.model import Subject
@@ -48,13 +50,19 @@ class TutorPostService:
             post = self.tutor_post_repository.create(post)
         return post
 
+    def get_post_for_viewer(self, post_id: int, viewer: User) -> TutorPost:
+        post = self.get_post(post_id)
+        self._ensure_can_view(viewer, post.tutor.user_id)
+        return post
+
     def get_post(self, post_id: int) -> TutorPost:
         post = self.tutor_post_repository.get_by_id(post_id)
         if post is None:
             raise PostNotFoundError()
         return post
 
-    def get_tutor_posts(self, user_id: int) -> list[TutorPost]:
+    def get_tutor_posts(self, user_id: int, viewer: User) -> list[TutorPost]:
+        self._ensure_can_view(viewer, user_id)
         tutor_profile = self.tutor_profile_repository.get_by_user_id(user_id)
         if tutor_profile is None:
             raise ProfileNotFoundError("Tutor profile not found")
@@ -125,3 +133,8 @@ class TutorPostService:
         if missing_ids:
             raise SubjectNotFoundError(details={"missing_ids": missing_ids})
         return subjects
+
+    @staticmethod
+    def _ensure_can_view(viewer: User, owner_user_id: int) -> None:
+        if viewer.role == UserRole.TUTOR and viewer.id != owner_user_id:
+            raise ViewAccessDeniedError("Tutors can only view their own posts")

@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 
-from app.features.auth.dependencies import TutorUser, get_current_user
+from app.features.auth.dependencies import CurrentUser, TutorUser
 from app.features.tutor_posts.dependencies import TutorPostServiceDep
 from app.features.tutor_posts.schemas import (
     TutorPostCreate,
@@ -36,25 +36,25 @@ def get_my_posts(
 @router.get(
     "/posts/{post_id}",
     response_model=TutorPostResponse,
-    dependencies=[Depends(get_current_user)],
 )
 def get_post(
     post_id: int,
+    current_user: CurrentUser,
     service: TutorPostServiceDep,
 ):
-    return service.get_post(post_id)
+    return service.get_post_for_viewer(post_id, current_user)
 
 
 @router.get(
     "/{user_id}/posts",
     response_model=list[TutorPostResponse],
-    dependencies=[Depends(get_current_user)],
 )
 def get_tutor_posts(
     user_id: int,
+    current_user: CurrentUser,
     service: TutorPostServiceDep,
 ):
-    return service.get_tutor_posts(user_id)
+    return service.get_tutor_posts(user_id, current_user)
 
 
 @router.patch("/posts/{post_id}", response_model=TutorPostResponse)

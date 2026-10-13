@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
 
-from app.features.auth.dependencies import ClientUser, get_current_user
+from app.features.auth.dependencies import ClientUser, CurrentUser
 from app.features.client_posts.dependencies import ClientPostServiceDep
 from app.features.client_posts.schemas import (
     ClientPostCreate,
@@ -36,25 +36,25 @@ def get_my_posts(
 @router.get(
     "/posts/{post_id}",
     response_model=ClientPostResponse,
-    dependencies=[Depends(get_current_user)],
 )
 def get_post(
     post_id: int,
+    current_user: CurrentUser,
     service: ClientPostServiceDep,
 ):
-    return service.get_post(post_id)
+    return service.get_post_for_viewer(post_id, current_user)
 
 
 @router.get(
     "/{user_id}/posts",
     response_model=list[ClientPostResponse],
-    dependencies=[Depends(get_current_user)],
 )
 def get_client_posts(
     user_id: int,
+    current_user: CurrentUser,
     service: ClientPostServiceDep,
 ):
-    return service.get_client_posts(user_id)
+    return service.get_client_posts(user_id, current_user)
 
 
 @router.patch("/posts/{post_id}", response_model=ClientPostResponse)
