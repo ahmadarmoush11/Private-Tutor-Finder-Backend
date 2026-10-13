@@ -11,7 +11,7 @@ This repository is the backend only. It's built with **FastAPI**, **SQLAlchemy 2
 ## What it can do so far
 
 - **Accounts** — sign up as a client or a tutor, log in, and get a JWT token. Admin accounts can't be created through sign-up.
-- **Profiles** — after signing up, each client or tutor creates their profile (school and location for clients; workplace, degree, experience level and a short summary for tutors).
+- **Profiles** — after signing up, each client or tutor creates their profile (grade and school for clients; workplace, degree, experience level and a short summary for tutors).
 - **Class levels** — KG1 to Grade 12 plus University, each grouped automatically into Preschool, Elementary, Intermediate, Secondary or Higher Education.
 - **Subjects** — Arabic, English, Math, Physics and so on. Anyone can list them; only admins can add, rename or delete them, and a subject that's used by posts can't be deleted.
 - **Client posts** — clients publish what they're looking for: the subjects they need, their class level, and where the lessons should take place (at their home, at the tutor's, or either). They can edit, deactivate or delete their own posts.
