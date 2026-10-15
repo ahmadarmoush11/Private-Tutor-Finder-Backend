@@ -53,6 +53,7 @@ class SubjectRepository:
         self.db.refresh(subject)
         return subject
 
+
     def update(self, subject: Subject, values: dict) -> Subject:
         for field, value in values.items():
             setattr(subject, field, value)

@@ -3,7 +3,8 @@ from app.db.unit_of_work import UnitOfWork
 from app.features.client_profiles.model import ClientProfile
 from app.features.users.model import User
 from app.features.client_profiles.repository import ClientProfileRepository
-from app.features.client_profiles.schemas import ClientProfileCreate, ClientProfileUpdate
+from app.features.client_profiles.schemas import ClientProfileCreate, ClientProfileUpdate, ClientProfileOut
+from app.features.users.schemas import UserSummary
 
 
 class ClientProfileService:

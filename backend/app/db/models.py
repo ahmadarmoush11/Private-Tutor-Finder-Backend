@@ -1,6 +1,7 @@
 from app.features.class_levels.model import ClassLevel, EducationLevel
 from app.features.client_posts.model import ClientPost, client_post_subjects
 from app.features.client_profiles.model import ClientProfile
+from app.features.client_requests.model import ClientRequest, RequestStatus
 from app.features.subjects.model import Subject
 from app.features.tutor_posts.model import (
     TutorPost,
@@ -15,10 +16,12 @@ __all__ = [
     "ClassLevel",
     "ClientPost",
     "ClientProfile",
+    "ClientRequest",
     "EducationLevel",
     "ExperienceLevel",
     "LessonLocation",
     "PostStatus",
+    "RequestStatus",
     "Subject",
     "TutorPost",
     "TutorProfile",

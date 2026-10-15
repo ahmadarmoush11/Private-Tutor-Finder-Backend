@@ -110,6 +110,14 @@ class SubjectAlreadyExistsError(ConflictException):
     error_code = "SUBJECT_ALREADY_EXISTS"
     message = "A subject with this name already exists"
 
+class ClientRequestAlreadyExistsError(ConflictException):
+    error_code="REQUEST_ALREADY_EXISTS"
+    message="A request to this tutor already exists"
+
+class ClientRequestNotFoundError(NotFoundException):
+    error_code="REQUEST_NOT_FOUND"
+    message="Request not found"
+
 
 class SubjectInUseError(ConflictException):
     error_code = "SUBJECT_IN_USE"
@@ -119,3 +127,8 @@ class SubjectInUseError(ConflictException):
 class ViewAccessDeniedError(ForbiddenException):
     error_code = "VIEW_ACCESS_DENIED"
     message = "You don't have permission to view this"
+
+
+class ClientRequestCannotBeDeletedError(ConflictException):
+    error_code = "REQUEST_CANNOT_BE_DELETED"
+    message = "Accepted or confirmed requests cannot be deleted"

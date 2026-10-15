@@ -10,3 +10,10 @@ class LessonLocation(str, enum.Enum):
     CLIENT_HOME = "client_home"
     TUTOR_HOME = "tutor_home"
     ANY = "any"
+
+class RequestStatus(str, enum.Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    CONFIRMED = "confirmed"
+    REJECTED = "rejected"
+    CANCELLED = "cancelled"
