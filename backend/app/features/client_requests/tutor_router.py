@@ -5,7 +5,7 @@ from app.features.client_requests.dependencies import ClientRequestServiceDep
 from app.features.client_requests.schemas import ClientRequestResponse
 
 
-router = APIRouter(prefix="/tutors/me/requests", tags=["Tutor Requests"])
+router = APIRouter(prefix="/tutors/me/requests", tags=["Client Requests (Tutor Inbox)"])
 
 
 @router.get("", response_model=list[ClientRequestResponse])

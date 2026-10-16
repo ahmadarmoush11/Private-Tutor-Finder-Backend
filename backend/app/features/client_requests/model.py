@@ -1,4 +1,3 @@
-import enum
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Enum, ForeignKey
@@ -6,18 +5,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.db.mixins import TimestampMixin
+from app.shared.enums import RequestStatus
 
 if TYPE_CHECKING:
     from app.features.client_profiles.model import ClientProfile
     from app.features.tutor_posts.model import TutorPost
-
-
-class RequestStatus(str, enum.Enum):
-    PENDING = "pending"
-    ACCEPTED = "accepted"
-    CONFIRMED = "confirmed"
-    REJECTED = "rejected"
-    CANCELLED = "cancelled"
 
 
 class ClientRequest(TimestampMixin, Base):

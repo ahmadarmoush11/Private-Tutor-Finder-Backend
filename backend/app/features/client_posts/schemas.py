@@ -1,10 +1,11 @@
 from datetime import datetime
+from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 from app.features.class_levels.schemas import ClassLevelOut
 from app.features.users.schemas import UserSummary
-from app.shared.enums import LessonLocation, PostStatus
+from app.shared.enums import Currency, LessonLocation, PostStatus, PriceUnit
 from app.features.subjects.schemas import SubjectOut
 from app.shared.schemas import OptionalText, unique_ids
 
@@ -18,11 +19,23 @@ class ClientPostCreate(BaseModel):
     address_details: str = Field(min_length=1, max_length=255)
     phone_number: str = Field(min_length=1, max_length=20)
     description: str = Field(min_length=1)
+    budget_min: Decimal = Field(ge=0, max_digits=12, decimal_places=2)
+    budget_max: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
+    currency: Currency
+    price_unit: PriceUnit
 
     @field_validator("subject_ids")
     @classmethod
     def remove_duplicate_ids(cls, value: list[int]) -> list[int]:
         return unique_ids(value)
+
+    @field_validator("budget_max")
+    @classmethod
+    def budget_max_not_below_min(cls, value: Decimal, info: ValidationInfo) -> Decimal:
+        budget_min = info.data.get("budget_min")
+        if budget_min is not None and value < budget_min:
+            raise ValueError("must be greater than or equal to budget_min")
+        return value
 
 
 class ClientPostUpdate(BaseModel):
@@ -35,6 +48,10 @@ class ClientPostUpdate(BaseModel):
     address_details: str | None = Field(default=None, min_length=1, max_length=255)
     phone_number: str | None = Field(default=None, min_length=1, max_length=20)
     description: str | None = Field(default=None, min_length=1)
+    budget_min: Decimal | None = Field(default=None, ge=0, max_digits=12, decimal_places=2)
+    budget_max: Decimal | None = Field(default=None, gt=0, max_digits=12, decimal_places=2)
+    currency: Currency | None = None
+    price_unit: PriceUnit | None = None
 
     @field_validator(
         "class_level_id",
@@ -44,6 +61,10 @@ class ClientPostUpdate(BaseModel):
         "address_details",
         "phone_number",
         "description",
+        "budget_min",
+        "budget_max",
+        "currency",
+        "price_unit",
     )
     @classmethod
     def not_null(cls, value):
@@ -72,5 +93,9 @@ class ClientPostResponse(BaseModel):
     address_details: str
     phone_number: str
     description: str
+    budget_min: Decimal | None
+    budget_max: Decimal | None
+    currency: Currency | None
+    price_unit: PriceUnit | None
     created_at: datetime
     updated_at: datetime

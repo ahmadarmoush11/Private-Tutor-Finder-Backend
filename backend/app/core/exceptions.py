@@ -136,3 +136,23 @@ class ViewAccessDeniedError(ForbiddenException):
 class ClientRequestCannotBeDeletedError(ConflictException):
     error_code = "REQUEST_CANNOT_BE_DELETED"
     message = "Accepted or confirmed requests cannot be deleted"
+
+
+class TutorRequestAlreadyExistsError(ConflictException):
+    error_code = "REQUEST_ALREADY_EXISTS"
+    message = "You already sent a request for this post"
+
+
+class TutorRequestNotFoundError(NotFoundException):
+    error_code = "REQUEST_NOT_FOUND"
+    message = "Request not found"
+
+
+class TutorRequestCannotBeDeletedError(ConflictException):
+    error_code = "REQUEST_CANNOT_BE_DELETED"
+    message = "Accepted or confirmed requests cannot be deleted"
+
+
+class TutorRequestCannotBeUpdatedError(ConflictException):
+    error_code = "REQUEST_CANNOT_BE_UPDATED"
+    message = "This request cannot be updated"

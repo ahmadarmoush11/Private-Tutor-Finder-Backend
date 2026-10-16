@@ -8,7 +8,7 @@ from app.features.client_requests.schemas import (
 )
 
 
-router = APIRouter(prefix="/client-requests", tags=["Clients Requests"])
+router = APIRouter(prefix="/client-requests", tags=["Client Requests"])
 
 
 @router.post(

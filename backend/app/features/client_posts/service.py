@@ -1,9 +1,12 @@
+from decimal import Decimal
+
 from app.core.exceptions import (
     ClassLevelNotFoundError,
     PostAccessDeniedError,
     PostNotFoundError,
     ProfileNotFoundError,
     SubjectNotFoundError,
+    ValidationException,
     ViewAccessDeniedError,
 )
 from app.db.unit_of_work import UnitOfWork
@@ -85,6 +88,11 @@ class ClientPostService:
         if "subject_ids" in values:
             values["subjects"] = self._get_subjects(values.pop("subject_ids"))
 
+        self._ensure_budget_range_is_valid(
+            values.get("budget_min", post.budget_min),
+            values.get("budget_max", post.budget_max),
+        )
+
         with self.uow:
             post = self.client_post_repository.update(post, values)
         return post
@@ -121,6 +129,21 @@ class ClientPostService:
         if missing_ids:
             raise SubjectNotFoundError(details={"missing_ids": missing_ids})
         return subjects
+
+    @staticmethod
+    def _ensure_budget_range_is_valid(
+        budget_min: Decimal | None,
+        budget_max: Decimal | None,
+    ) -> None:
+        if budget_min is not None and budget_max is not None and budget_max < budget_min:
+            raise ValidationException(
+                details=[
+                    {
+                        "field": "budget_max",
+                        "message": "must be greater than or equal to budget_min",
+                    }
+                ]
+            )
 
     @staticmethod
     def _ensure_can_view(viewer: User, owner_user_id: int) -> None:

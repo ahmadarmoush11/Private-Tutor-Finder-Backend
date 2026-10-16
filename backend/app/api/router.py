@@ -7,7 +7,9 @@ from app.features.client_requests.router import router as client_requests_router
 from app.features.subjects.router import router as subjects_router
 from app.features.tutor_posts.router import router as tutor_posts_router
 from app.features.tutor_profiles.router import router as tutor_profiles_router
-from app.features.client_requests.tutor_router import router as tutor_requests_router
+from app.features.client_requests.tutor_router import router as tutor_inbox_router
+from app.features.tutor_requests.client_router import router as client_inbox_router
+from app.features.tutor_requests.router import router as tutor_requests_router
 
 
 api_router = APIRouter()
@@ -18,4 +20,6 @@ api_router.include_router(tutor_profiles_router)
 api_router.include_router(client_posts_router)
 api_router.include_router(tutor_posts_router)
 api_router.include_router(client_requests_router)
+api_router.include_router(tutor_inbox_router)
 api_router.include_router(tutor_requests_router)
+api_router.include_router(client_inbox_router)
