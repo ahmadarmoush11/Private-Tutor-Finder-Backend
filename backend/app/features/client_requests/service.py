@@ -1,13 +1,11 @@
 from app.db.unit_of_work import UnitOfWork
-from app.core.exceptions import(
+from app.core.exceptions import (
     PostNotFoundError,
-    ClientRequestAlreadyExistsError,
-    ClientRequestNotFoundError,
-    ClientRequestCannotBeDeletedError,
-    ClientRequestCannotBeUpdatedError
-
-
+    RequestCannotBeDeletedError,
+    RequestCannotBeUpdatedError,
+    RequestNotFoundError,
 )
+from app.features.client_requests.exceptions import ClientRequestAlreadyExistsError
 from app.features.client_requests.model import ClientRequest, RequestStatus
 from app.features.tutor_posts.repository import TutorPostRepository
 from app.features.client_requests.repository import ClientRequestRepository
@@ -66,7 +64,7 @@ class ClientRequestService:
             client_request_id,
         )
         if client_request is None:
-            raise ClientRequestNotFoundError()
+            raise RequestNotFoundError()
         return client_request
 
     def get_by_id_for_tutor(
@@ -79,7 +77,7 @@ class ClientRequestService:
             client_request_id,
         )
         if client_request is None:
-            raise ClientRequestNotFoundError()
+            raise RequestNotFoundError()
         return client_request
 
     
@@ -99,7 +97,7 @@ class ClientRequestService:
         client_request = self.get_by_id_for_client(user_id, client_request_id)
 
         if client_request.status in (RequestStatus.ACCEPTED, RequestStatus.CONFIRMED):
-            raise ClientRequestCannotBeDeletedError()
+            raise RequestCannotBeDeletedError()
 
         with self.uow:
             self.client_request_repository.delete(client_request)
@@ -134,7 +132,7 @@ class ClientRequestService:
         client_request = self.get_by_id_for_tutor(user_id, client_request_id)
 
         if client_request.status != RequestStatus.PENDING:
-            raise ClientRequestCannotBeUpdatedError()
+            raise RequestCannotBeUpdatedError()
 
         with self.uow:
             client_request = self.client_request_repository.update_status(

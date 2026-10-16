@@ -1,11 +1,11 @@
 from app.core.exceptions import (
-    ClassLevelNotFoundError,
     PostAccessDeniedError,
     PostNotFoundError,
     ProfileNotFoundError,
-    SubjectNotFoundError,
     ViewAccessDeniedError,
 )
+from app.features.class_levels.exceptions import ClassLevelNotFoundError
+from app.features.subjects.exceptions import SubjectNotFoundError
 from app.db.unit_of_work import UnitOfWork
 from app.features.users.model import User, UserRole
 from app.features.class_levels.model import ClassLevel

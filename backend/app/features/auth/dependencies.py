@@ -3,7 +3,8 @@ from typing import Annotated
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.core.exceptions import ForbiddenException, InvalidTokenError, UnauthorizedException
+from app.core.exceptions import ForbiddenException, UnauthorizedException
+from app.features.auth.exceptions import InvalidTokenError
 from app.core.security import decode_access_token
 from app.db.dependencies import UnitOfWorkDep
 from app.features.auth.service import AuthService

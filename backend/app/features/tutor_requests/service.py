@@ -1,11 +1,11 @@
 from app.core.exceptions import (
     PostNotFoundError,
     ProfileNotFoundError,
-    TutorRequestAlreadyExistsError,
-    TutorRequestCannotBeDeletedError,
-    TutorRequestCannotBeUpdatedError,
-    TutorRequestNotFoundError,
+    RequestCannotBeDeletedError,
+    RequestCannotBeUpdatedError,
+    RequestNotFoundError,
 )
+from app.features.tutor_requests.exceptions import TutorRequestAlreadyExistsError
 from app.db.unit_of_work import UnitOfWork
 from app.features.client_posts.repository import ClientPostRepository
 from app.features.tutor_profiles.model import TutorProfile
@@ -52,7 +52,7 @@ class TutorRequestService:
             tutor_request_id,
         )
         if tutor_request is None:
-            raise TutorRequestNotFoundError()
+            raise RequestNotFoundError()
         return tutor_request
 
     def get_all_for_tutor(self, user_id: int) -> list[TutorRequest]:
@@ -63,7 +63,7 @@ class TutorRequestService:
         tutor_request = self.get_by_id_for_tutor(user_id, tutor_request_id)
 
         if tutor_request.status in (RequestStatus.ACCEPTED, RequestStatus.CONFIRMED):
-            raise TutorRequestCannotBeDeletedError()
+            raise RequestCannotBeDeletedError()
 
         with self.uow:
             self.tutor_request_repository.delete(tutor_request)
@@ -74,7 +74,7 @@ class TutorRequestService:
             tutor_request_id,
         )
         if tutor_request is None:
-            raise TutorRequestNotFoundError()
+            raise RequestNotFoundError()
         return tutor_request
 
     def get_all_for_client(self, user_id: int) -> list[TutorRequest]:
@@ -95,7 +95,7 @@ class TutorRequestService:
         tutor_request = self.get_by_id_for_client(user_id, tutor_request_id)
 
         if tutor_request.status != RequestStatus.PENDING:
-            raise TutorRequestCannotBeUpdatedError()
+            raise RequestCannotBeUpdatedError()
 
         with self.uow:
             tutor_request = self.tutor_request_repository.update_status(

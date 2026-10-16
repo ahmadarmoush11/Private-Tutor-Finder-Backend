@@ -1,4 +1,5 @@
-from app.core.exceptions import EmailAlreadyRegisteredError, InvalidCredentialsError
+from app.features.auth.exceptions import InvalidCredentialsError
+from app.features.users.exceptions import EmailAlreadyRegisteredError
 from app.core.security import create_access_token, hash_password, verify_password
 from app.db.unit_of_work import UnitOfWork
 from app.features.users.model import User, UserRole

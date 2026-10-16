@@ -1,4 +1,4 @@
-from app.core.exceptions import (
+from app.features.subjects.exceptions import (
     SubjectAlreadyExistsError,
     SubjectInUseError,
     SubjectNotFoundError,

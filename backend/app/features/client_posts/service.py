@@ -1,14 +1,14 @@
 from decimal import Decimal
 
 from app.core.exceptions import (
-    ClassLevelNotFoundError,
     PostAccessDeniedError,
     PostNotFoundError,
     ProfileNotFoundError,
-    SubjectNotFoundError,
     ValidationException,
     ViewAccessDeniedError,
 )
+from app.features.class_levels.exceptions import ClassLevelNotFoundError
+from app.features.subjects.exceptions import SubjectNotFoundError
 from app.db.unit_of_work import UnitOfWork
 from app.features.users.model import User, UserRole
 from app.features.class_levels.repository import ClassLevelRepository

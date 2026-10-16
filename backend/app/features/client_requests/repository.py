@@ -5,7 +5,7 @@ from app.features.client_requests.model import ClientRequest, RequestStatus
 from app.features.client_profiles.model import ClientProfile
 from app.features.tutor_posts.model import TutorPost
 from app.features.tutor_profiles.model import TutorProfile
-from app.core.exceptions import ClientRequestAlreadyExistsError
+from app.features.client_requests.exceptions import ClientRequestAlreadyExistsError
 
 
 

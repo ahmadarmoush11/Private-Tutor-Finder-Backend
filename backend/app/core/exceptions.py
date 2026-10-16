@@ -61,21 +61,6 @@ class InternalServerException(AppException):
     pass
 
 
-class EmailAlreadyRegisteredError(ConflictException):
-    error_code = "EMAIL_ALREADY_REGISTERED"
-    message = "An account with this email already exists"
-
-
-class InvalidCredentialsError(UnauthorizedException):
-    error_code = "INVALID_CREDENTIALS"
-    message = "Incorrect email or password"
-
-
-class InvalidTokenError(UnauthorizedException):
-    error_code = "INVALID_TOKEN"
-    message = "Could not validate credentials"
-
-
 class ProfileAlreadyExistsError(ConflictException):
     error_code = "PROFILE_ALREADY_EXISTS"
     message = "You already have a profile"
@@ -96,63 +81,21 @@ class PostAccessDeniedError(ForbiddenException):
     message = "You can only modify your own posts"
 
 
-class ClassLevelNotFoundError(NotFoundException):
-    error_code = "CLASS_LEVEL_NOT_FOUND"
-    message = "Class level not found"
-
-
-class SubjectNotFoundError(NotFoundException):
-    error_code = "SUBJECT_NOT_FOUND"
-    message = "Subject not found"
-
-
-class SubjectAlreadyExistsError(ConflictException):
-    error_code = "SUBJECT_ALREADY_EXISTS"
-    message = "A subject with this name already exists"
-
-class ClientRequestAlreadyExistsError(ConflictException):
-    error_code="REQUEST_ALREADY_EXISTS"
-    message="A request to this tutor already exists"
-
-class ClientRequestNotFoundError(NotFoundException):
-    error_code="REQUEST_NOT_FOUND"
-    message="Request not found"
-
-class ClientRequestCannotBeUpdatedError(ConflictException):
-    error_code="REQUEST_CANNOT_BE_UPDATED"
-    message="This request cannot be updated"
-
-
-class SubjectInUseError(ConflictException):
-    error_code = "SUBJECT_IN_USE"
-    message = "This subject is used by existing posts and cannot be deleted"
-
-
 class ViewAccessDeniedError(ForbiddenException):
     error_code = "VIEW_ACCESS_DENIED"
     message = "You don't have permission to view this"
 
 
-class ClientRequestCannotBeDeletedError(ConflictException):
-    error_code = "REQUEST_CANNOT_BE_DELETED"
-    message = "Accepted or confirmed requests cannot be deleted"
-
-
-class TutorRequestAlreadyExistsError(ConflictException):
-    error_code = "REQUEST_ALREADY_EXISTS"
-    message = "You already sent a request for this post"
-
-
-class TutorRequestNotFoundError(NotFoundException):
+class RequestNotFoundError(NotFoundException):
     error_code = "REQUEST_NOT_FOUND"
     message = "Request not found"
 
 
-class TutorRequestCannotBeDeletedError(ConflictException):
-    error_code = "REQUEST_CANNOT_BE_DELETED"
-    message = "Accepted or confirmed requests cannot be deleted"
-
-
-class TutorRequestCannotBeUpdatedError(ConflictException):
+class RequestCannotBeUpdatedError(ConflictException):
     error_code = "REQUEST_CANNOT_BE_UPDATED"
     message = "This request cannot be updated"
+
+
+class RequestCannotBeDeletedError(ConflictException):
+    error_code = "REQUEST_CANNOT_BE_DELETED"
+    message = "Accepted or confirmed requests cannot be deleted"

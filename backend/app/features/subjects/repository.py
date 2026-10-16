@@ -2,7 +2,10 @@ from sqlalchemy import exists, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import SubjectAlreadyExistsError, SubjectInUseError
+from app.features.subjects.exceptions import (
+    SubjectAlreadyExistsError,
+    SubjectInUseError,
+)
 from app.features.client_posts.model import client_post_subjects
 from app.features.subjects.model import Subject
 from app.features.tutor_posts.model import tutor_post_subjects
