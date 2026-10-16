@@ -118,6 +118,10 @@ class ClientRequestNotFoundError(NotFoundException):
     error_code="REQUEST_NOT_FOUND"
     message="Request not found"
 
+class ClientRequestCannotBeUpdatedError(ConflictException):
+    error_code="REQUEST_CANNOT_BE_UPDATED"
+    message="This request cannot be updated"
+
 
 class SubjectInUseError(ConflictException):
     error_code = "SUBJECT_IN_USE"

@@ -4,6 +4,7 @@ from app.core.exceptions import(
     ClientRequestAlreadyExistsError,
     ClientRequestNotFoundError,
     ClientRequestCannotBeDeletedError,
+    ClientRequestCannotBeUpdatedError
 
 
 )
@@ -12,6 +13,7 @@ from app.features.tutor_posts.repository import TutorPostRepository
 from app.features.client_requests.repository import ClientRequestRepository
 from app.features.tutor_posts.service import TutorPostService
 from app.features.client_profiles.service import ClientProfileService
+
 
 class ClientRequestService:
     def __init__(
@@ -40,7 +42,7 @@ class ClientRequestService:
 
         self._check_post(tutor_post_id)
         client_profile=self.client_profile_service.get_by_user_id(user_id)
-        self._check_existing_request(client_profile.id,tutor_post_id)
+        self._check_existing_request_for_client(client_profile.id,tutor_post_id)
 
         client_request= ClientRequest(
             client_id=client_profile.id,
@@ -60,6 +62,19 @@ class ClientRequestService:
         client_request_id: int,
     ) -> ClientRequest:
         client_request = self.client_request_repository.get_by_id_for_client(
+            user_id,
+            client_request_id,
+        )
+        if client_request is None:
+            raise ClientRequestNotFoundError()
+        return client_request
+
+    def get_by_id_for_tutor(
+        self,
+        user_id: int,
+        client_request_id: int,
+    ) -> ClientRequest:
+        client_request = self.client_request_repository.get_by_id_for_tutor(
             user_id,
             client_request_id,
         )
@@ -89,6 +104,45 @@ class ClientRequestService:
         with self.uow:
             self.client_request_repository.delete(client_request)
 
+
+    def get_all_for_tutor(
+        self,
+        user_id: int,
+    ) -> list[ClientRequest]:
+        return self.client_request_repository.get_all_for_tutor(user_id)
+
+    def accept_for_tutor(
+        self,
+        user_id: int,
+        client_request_id: int,
+    ) -> ClientRequest:
+        return self._respond_for_tutor(user_id, client_request_id, RequestStatus.ACCEPTED)
+
+    def reject_for_tutor(
+        self,
+        user_id: int,
+        client_request_id: int,
+    ) -> ClientRequest:
+        return self._respond_for_tutor(user_id, client_request_id, RequestStatus.REJECTED)
+
+    def _respond_for_tutor(
+        self,
+        user_id: int,
+        client_request_id: int,
+        new_status: RequestStatus,
+    ) -> ClientRequest:
+        client_request = self.get_by_id_for_tutor(user_id, client_request_id)
+
+        if client_request.status != RequestStatus.PENDING:
+            raise ClientRequestCannotBeUpdatedError()
+
+        with self.uow:
+            client_request = self.client_request_repository.update_status(
+                client_request,
+                new_status,
+            )
+        return client_request
+
     def _check_post(
         self,
         tutor_post_id: int,
@@ -99,7 +153,7 @@ class ClientRequestService:
             raise PostNotFoundError()
 
 
-    def _check_existing_request(
+    def _check_existing_request_for_client(
         self,
         client_profile_id: int,
         tutor_post_id: int,
@@ -109,21 +163,3 @@ class ClientRequestService:
 
         if existing_request is not None:
             raise ClientRequestAlreadyExistsError()
-
-
-
-    
-        
-
-
-    
-        
-        
-        
-
-        
-        
-        
-        
-        
-        
