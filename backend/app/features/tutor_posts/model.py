@@ -1,11 +1,13 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, Enum, ForeignKey, String, Table, Text
+from decimal import Decimal
+
+from sqlalchemy import Column, Enum, ForeignKey, Numeric, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.db.mixins import TimestampMixin
-from app.shared.enums import LessonLocation, PostStatus
+from app.shared.enums import Currency, LessonLocation, PostStatus, PriceUnit
 
 if TYPE_CHECKING:
     from app.features.class_levels.model import ClassLevel
@@ -81,6 +83,23 @@ class TutorPost(TimestampMixin, Base):
     address_details: Mapped[str] = mapped_column(String(255))
     phone_number: Mapped[str] = mapped_column(String(20))
     description: Mapped[str] = mapped_column(Text)
+    price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
+    currency: Mapped[Currency | None] = mapped_column(
+        Enum(
+            Currency,
+            name="currency",
+            values_callable=lambda e: [member.value for member in e],
+        ),
+        nullable=True,
+    )
+    price_unit: Mapped[PriceUnit | None] = mapped_column(
+        Enum(
+            PriceUnit,
+            name="price_unit",
+            values_callable=lambda e: [member.value for member in e],
+        ),
+        nullable=True,
+    )
 
     tutor: Mapped["TutorProfile"] = relationship(back_populates="posts")
     requests: Mapped[list["ClientRequest"]] = relationship(

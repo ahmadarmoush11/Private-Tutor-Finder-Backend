@@ -17,3 +17,15 @@ class RequestStatus(str, enum.Enum):
     CONFIRMED = "confirmed"
     REJECTED = "rejected"
     CANCELLED = "cancelled"
+
+
+class Currency(str, enum.Enum):
+    USD = "USD"
+    LBP = "LBP"
+
+
+class PriceUnit(str, enum.Enum):
+    HOUR = "hour"
+    SESSION = "session"
+    WEEK = "week"
+    MONTH = "month"
