@@ -1,16 +1,23 @@
-from app.db.unit_of_work import UnitOfWork
 from app.core.exceptions import (
-    PostNotFoundError,
+    ProfileNotFoundError,
     RequestCannotBeDeletedError,
     RequestCannotBeUpdatedError,
     RequestNotFoundError,
 )
-from app.features.lesson_requests.exceptions import LessonRequestAlreadyExistsError
-from app.features.lesson_requests.model import LessonRequest, RequestStatus
-from app.features.tutor_posts.repository import TutorPostRepository
-from app.features.lesson_requests.repository import LessonRequestRepository
-from app.features.tutor_posts.service import TutorPostService
+from app.db.unit_of_work import UnitOfWork
+from app.features.class_levels.exceptions import ClassLevelNotFoundError
+from app.features.class_levels.repository import ClassLevelRepository
 from app.features.client_profiles.service import ClientProfileService
+from app.features.lesson_requests.exceptions import LessonRequestAlreadyExistsError
+from app.features.lesson_requests.model import LessonRequest
+from app.features.lesson_requests.repository import LessonRequestRepository
+from app.features.lesson_requests.schemas import LessonRequestCreate
+from app.features.subjects.exceptions import SubjectNotFoundError
+from app.features.subjects.model import Subject
+from app.features.subjects.repository import SubjectRepository
+from app.features.tutor_profiles.model import TutorProfile
+from app.features.tutor_profiles.repository import TutorProfileRepository
+from app.shared.enums import RequestStatus
 
 
 class LessonRequestService:
@@ -18,47 +25,41 @@ class LessonRequestService:
         self,
         lesson_request_repository: LessonRequestRepository,
         client_profile_service: ClientProfileService,
-        tutor_post_repository: TutorPostRepository,
-        tutor_post_service: TutorPostService,
-        uow: UnitOfWork
-            
+        tutor_profile_repository: TutorProfileRepository,
+        subject_repository: SubjectRepository,
+        class_level_repository: ClassLevelRepository,
+        uow: UnitOfWork,
     ):
-        self.lesson_request_repository=lesson_request_repository
-        self.client_profile_service=client_profile_service
-        self.tutor_post_repository=tutor_post_repository
-        self.tutor_post_service=tutor_post_service
-        self.uow=uow
-        
+        self.lesson_request_repository = lesson_request_repository
+        self.client_profile_service = client_profile_service
+        self.tutor_profile_repository = tutor_profile_repository
+        self.subject_repository = subject_repository
+        self.class_level_repository = class_level_repository
+        self.uow = uow
 
+    def create(self, user_id: int, data: LessonRequestCreate) -> LessonRequest:
+        client_profile = self.client_profile_service.get_by_user_id(user_id)
+        tutor_profile = self._get_tutor_profile(data.tutor_user_id)
+        subjects = self._get_subjects(data.subject_ids)
+        self._ensure_class_level_exists(data.class_level_id)
 
-    def create(
-        self,
-        user_id: int,
-        tutor_post_id: int,
+        if self.lesson_request_repository.get_pending(client_profile.id, tutor_profile.id):
+            raise LessonRequestAlreadyExistsError()
 
-    )->LessonRequest:
-
-        self._check_post(tutor_post_id)
-        client_profile=self.client_profile_service.get_by_user_id(user_id)
-        self._check_existing_request_for_client(client_profile.id,tutor_post_id)
-
-        lesson_request= LessonRequest(
+        lesson_request = LessonRequest(
             client_id=client_profile.id,
-            tutor_post_id=tutor_post_id,
+            tutor_id=tutor_profile.id,
+            class_level_id=data.class_level_id,
+            subjects=subjects,
+            lesson_location=data.lesson_location,
+            message=data.message,
         )
 
         with self.uow:
-            lesson_request=self.lesson_request_repository.create(lesson_request)
-
+            lesson_request = self.lesson_request_repository.create(lesson_request)
         return lesson_request
 
-            
-
-    def get_by_id_for_client(
-        self,
-        user_id: int,
-        lesson_request_id: int,
-    ) -> LessonRequest:
+    def get_by_id_for_client(self, user_id: int, lesson_request_id: int) -> LessonRequest:
         lesson_request = self.lesson_request_repository.get_by_id_for_client(
             user_id,
             lesson_request_id,
@@ -67,11 +68,7 @@ class LessonRequestService:
             raise RequestNotFoundError()
         return lesson_request
 
-    def get_by_id_for_tutor(
-        self,
-        user_id: int,
-        lesson_request_id: int,
-    ) -> LessonRequest:
+    def get_by_id_for_tutor(self, user_id: int, lesson_request_id: int) -> LessonRequest:
         lesson_request = self.lesson_request_repository.get_by_id_for_tutor(
             user_id,
             lesson_request_id,
@@ -80,20 +77,14 @@ class LessonRequestService:
             raise RequestNotFoundError()
         return lesson_request
 
-    
-
-    def get_all_for_client(
-        self,
-        user_id: int,
-    ) -> list[LessonRequest]:
+    def get_all_for_client(self, user_id: int) -> list[LessonRequest]:
         client_profile = self.client_profile_service.get_by_user_id(user_id)
-        return self.lesson_request_repository.get_all_by_client_id(client_profile.id)
+        return self.lesson_request_repository.get_all_for_client(client_profile.id)
 
-    def delete_for_client(
-        self,
-        user_id: int,
-        lesson_request_id: int,
-    ) -> None:
+    def get_all_for_tutor(self, user_id: int) -> list[LessonRequest]:
+        return self.lesson_request_repository.get_all_for_tutor(user_id)
+
+    def delete_for_client(self, user_id: int, lesson_request_id: int) -> None:
         lesson_request = self.get_by_id_for_client(user_id, lesson_request_id)
 
         if lesson_request.status in (RequestStatus.ACCEPTED, RequestStatus.CONFIRMED):
@@ -102,25 +93,10 @@ class LessonRequestService:
         with self.uow:
             self.lesson_request_repository.delete(lesson_request)
 
-
-    def get_all_for_tutor(
-        self,
-        user_id: int,
-    ) -> list[LessonRequest]:
-        return self.lesson_request_repository.get_all_for_tutor(user_id)
-
-    def accept_for_tutor(
-        self,
-        user_id: int,
-        lesson_request_id: int,
-    ) -> LessonRequest:
+    def accept_for_tutor(self, user_id: int, lesson_request_id: int) -> LessonRequest:
         return self._respond_for_tutor(user_id, lesson_request_id, RequestStatus.ACCEPTED)
 
-    def reject_for_tutor(
-        self,
-        user_id: int,
-        lesson_request_id: int,
-    ) -> LessonRequest:
+    def reject_for_tutor(self, user_id: int, lesson_request_id: int) -> LessonRequest:
         return self._respond_for_tutor(user_id, lesson_request_id, RequestStatus.REJECTED)
 
     def _respond_for_tutor(
@@ -141,23 +117,22 @@ class LessonRequestService:
             )
         return lesson_request
 
-    def _check_post(
-        self,
-        tutor_post_id: int,
-    )->None:
-        tutor_post=self.tutor_post_repository.get_by_id(tutor_post_id)
+    def _get_tutor_profile(self, tutor_user_id: int) -> TutorProfile:
+        tutor_profile = self.tutor_profile_repository.get_by_user_id(tutor_user_id)
+        if tutor_profile is None:
+            raise ProfileNotFoundError("Tutor not found")
+        return tutor_profile
 
-        if tutor_post is None:
-            raise PostNotFoundError()
+    def _get_subjects(self, subject_ids: list[int]) -> list[Subject]:
+        subjects = self.subject_repository.get_by_ids(subject_ids)
+        found_ids = {subject.id for subject in subjects}
+        missing_ids = [
+            subject_id for subject_id in subject_ids if subject_id not in found_ids
+        ]
+        if missing_ids:
+            raise SubjectNotFoundError(details={"missing_ids": missing_ids})
+        return subjects
 
-
-    def _check_existing_request_for_client(
-        self,
-        client_profile_id: int,
-        tutor_post_id: int,
-    )->None:
-
-        existing_request=self.lesson_request_repository.get_existing(client_profile_id,tutor_post_id)
-
-        if existing_request is not None:
-            raise LessonRequestAlreadyExistsError()
+    def _ensure_class_level_exists(self, class_level_id: int) -> None:
+        if self.class_level_repository.get_by_id(class_level_id) is None:
+            raise ClassLevelNotFoundError()

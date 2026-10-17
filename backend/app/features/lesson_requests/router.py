@@ -21,7 +21,7 @@ def create_lesson_request(
     current_user: ClientUser,
     service: LessonRequestServiceDep,
 ):
-    return service.create(current_user.id, data.tutor_post_id)
+    return service.create(current_user.id, data)
 
 
 @router.get("", response_model=list[LessonRequestResponse])

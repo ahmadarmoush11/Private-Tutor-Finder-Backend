@@ -13,4 +13,4 @@ class SubjectAlreadyExistsError(ConflictException):
 
 class SubjectInUseError(ConflictException):
     error_code = "SUBJECT_IN_USE"
-    message = "This subject is used by existing posts and cannot be deleted"
+    message = "This subject is used by existing posts or lesson requests and cannot be deleted"

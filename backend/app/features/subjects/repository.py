@@ -7,6 +7,7 @@ from app.features.subjects.exceptions import (
     SubjectInUseError,
 )
 from app.features.client_posts.model import client_post_subjects
+from app.features.lesson_requests.model import lesson_request_subjects
 from app.features.subjects.model import Subject
 from app.features.tutor_posts.model import tutor_post_subjects
 
@@ -42,6 +43,7 @@ class SubjectRepository:
                     or_(
                         exists().where(client_post_subjects.c.subject_id == subject_id),
                         exists().where(tutor_post_subjects.c.subject_id == subject_id),
+                        exists().where(lesson_request_subjects.c.subject_id == subject_id),
                     )
                 )
             )
