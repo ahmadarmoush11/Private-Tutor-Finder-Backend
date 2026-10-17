@@ -8,20 +8,20 @@ from app.db.mixins import TimestampMixin
 from app.shared.enums import RequestStatus
 
 if TYPE_CHECKING:
-    from app.features.client_posts.model import ClientPost
-    from app.features.tutor_profiles.model import TutorProfile
+    from app.features.client_profiles.model import ClientProfile
+    from app.features.tutor_posts.model import TutorPost
 
 
-class TutorRequest(TimestampMixin, Base):
-    __tablename__ = "tutor_requests"
+class LessonRequest(TimestampMixin, Base):
+    __tablename__ = "lesson_requests"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    tutor_id: Mapped[int] = mapped_column(
-        ForeignKey("tutor_profiles.id", ondelete="CASCADE"),
+    client_id: Mapped[int] = mapped_column(
+        ForeignKey("client_profiles.id", ondelete="CASCADE"),
         index=True,
     )
-    client_post_id: Mapped[int] = mapped_column(
-        ForeignKey("client_posts.id", ondelete="CASCADE"),
+    tutor_post_id: Mapped[int] = mapped_column(
+        ForeignKey("tutor_posts.id", ondelete="CASCADE"),
         index=True,
     )
     status: Mapped[RequestStatus] = mapped_column(
@@ -35,5 +35,5 @@ class TutorRequest(TimestampMixin, Base):
         index=True,
     )
 
-    tutor: Mapped["TutorProfile"] = relationship(back_populates="requests")
-    client_post: Mapped["ClientPost"] = relationship(back_populates="requests")
+    client: Mapped["ClientProfile"] = relationship(back_populates="lesson_requests")
+    tutor_post: Mapped["TutorPost"] = relationship(back_populates="lesson_requests")

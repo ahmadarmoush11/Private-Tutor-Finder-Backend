@@ -11,7 +11,7 @@ from app.shared.enums import Currency, LessonLocation, PostStatus, PriceUnit
 
 if TYPE_CHECKING:
     from app.features.class_levels.model import ClassLevel
-    from app.features.client_requests.model import ClientRequest
+    from app.features.lesson_requests.model import LessonRequest
     from app.features.subjects.model import Subject
     from app.features.tutor_profiles.model import TutorProfile
     from app.features.users.model import User
@@ -102,7 +102,7 @@ class TutorPost(TimestampMixin, Base):
     )
 
     tutor: Mapped["TutorProfile"] = relationship(back_populates="posts")
-    requests: Mapped[list["ClientRequest"]] = relationship(
+    lesson_requests: Mapped[list["LessonRequest"]] = relationship(
         back_populates="tutor_post",
         cascade="all, delete-orphan",
     )

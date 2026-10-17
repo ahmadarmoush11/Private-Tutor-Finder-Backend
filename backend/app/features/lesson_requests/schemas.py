@@ -3,15 +3,15 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from app.features.client_profiles.schemas import ClientProfileOut
-from app.features.client_requests.model import RequestStatus
+from app.features.lesson_requests.model import RequestStatus
 from app.features.tutor_posts.schemas import TutorPostResponse
 
 
-class ClientRequestCreate(BaseModel):
+class LessonRequestCreate(BaseModel):
     tutor_post_id: int
 
 
-class ClientRequestResponse(BaseModel):
+class LessonRequestResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int

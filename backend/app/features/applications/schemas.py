@@ -7,11 +7,11 @@ from app.features.tutor_profiles.schemas import TutorProfileOut
 from app.shared.enums import RequestStatus
 
 
-class TutorRequestCreate(BaseModel):
+class ApplicationCreate(BaseModel):
     client_post_id: int
 
 
-class TutorRequestResponse(BaseModel):
+class ApplicationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int

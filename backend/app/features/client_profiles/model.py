@@ -8,7 +8,7 @@ from app.db.mixins import TimestampMixin
 
 if TYPE_CHECKING:
     from app.features.client_posts.model import ClientPost
-    from app.features.client_requests.model import ClientRequest
+    from app.features.lesson_requests.model import LessonRequest
     from app.features.users.model import User
 
 
@@ -32,7 +32,7 @@ class ClientProfile(TimestampMixin, Base):
         back_populates="client",
         cascade="all, delete-orphan",
     )
-    requests: Mapped[list["ClientRequest"]] = relationship(
+    lesson_requests: Mapped[list["LessonRequest"]] = relationship(
         back_populates="client",
         cascade="all, delete-orphan",
     )
