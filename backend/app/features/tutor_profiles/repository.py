@@ -1,9 +1,10 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.exceptions import ProfileAlreadyExistsError
-from app.features.tutor_profiles.model import TutorProfile
+from app.features.tutor_profiles.model import ExperienceLevel, TutorProfile
+from app.features.users.model import User
 
 
 class TutorProfileRepository:
@@ -33,3 +34,42 @@ class TutorProfileRepository:
         self.db.flush()
         self.db.refresh(profile)
         return profile
+
+    def search(
+        self,
+        *,
+        first_name: str | None,
+        last_name: str | None,
+        workplace: str | None,
+        degree: str | None,
+        experience_levels: list[ExperienceLevel] | None,
+        limit: int,
+        offset: int,
+    ) -> list[TutorProfile]:
+        statement = (
+            select(TutorProfile)
+            .join(TutorProfile.user)
+            .options(selectinload(TutorProfile.user))
+        )
+
+        if first_name:
+            statement = statement.where(User.first_name.icontains(first_name, autoescape=True))
+        if last_name:
+            statement = statement.where(User.last_name.icontains(last_name, autoescape=True))
+        if workplace:
+            statement = statement.where(TutorProfile.workplace.icontains(workplace, autoescape=True))
+        if degree:
+            statement = statement.where(TutorProfile.degree.icontains(degree, autoescape=True))
+        if experience_levels:
+            statement = statement.where(TutorProfile.experience_level.in_(experience_levels))
+
+        statement = (
+            statement.order_by(
+                func.lower(User.last_name),
+                func.lower(User.first_name),
+                TutorProfile.id,
+            )
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(self.db.scalars(statement))

@@ -1,24 +1,19 @@
-from app.core.exceptions import (
-    ProfileAlreadyExistsError,
-    ProfileNotFoundError,
-    ViewAccessDeniedError,
-)
+from app.core.exceptions import ProfileAlreadyExistsError, ProfileNotFoundError
 from app.db.unit_of_work import UnitOfWork
 from app.features.tutor_profiles.model import TutorProfile
-from app.features.users.model import User, UserRole
+from app.features.users.model import User
 from app.features.tutor_profiles.repository import TutorProfileRepository
-from app.features.tutor_profiles.schemas import TutorProfileCreate, TutorProfileUpdate
+from app.features.tutor_profiles.schemas import (
+    TutorProfileCreate,
+    TutorProfileUpdate,
+    TutorSearchParams,
+)
 
 
 class TutorProfileService:
     def __init__(self, tutor_profile_repository: TutorProfileRepository, uow: UnitOfWork):
         self.tutor_profile_repository = tutor_profile_repository
         self.uow = uow
-
-    def get_profile_for_viewer(self, user_id: int, viewer: User) -> TutorProfile:
-        if viewer.role == UserRole.TUTOR and viewer.id != user_id:
-            raise ViewAccessDeniedError("Tutors can only view their own profile")
-        return self.get_by_user_id(user_id)
 
     def get_by_user_id(self, user_id: int) -> TutorProfile:
         profile = self.tutor_profile_repository.get_by_user_id(user_id)
@@ -40,3 +35,14 @@ class TutorProfileService:
         with self.uow:
             profile = self.tutor_profile_repository.update(profile, values)
         return profile
+
+    def search(self, params: TutorSearchParams) -> list[TutorProfile]:
+        return self.tutor_profile_repository.search(
+            first_name=params.first_name,
+            last_name=params.last_name,
+            workplace=params.workplace,
+            degree=params.degree,
+            experience_levels=params.experience_level,
+            limit=params.limit,
+            offset=params.offset,
+        )

@@ -64,7 +64,9 @@ def require_roles(*roles: UserRole):
 require_admin = require_roles(UserRole.ADMIN)
 require_client = require_roles(UserRole.CLIENT)
 require_tutor = require_roles(UserRole.TUTOR)
+require_client_or_admin = require_roles(UserRole.CLIENT, UserRole.ADMIN)
 
 AdminUser = Annotated[User, Depends(require_admin)]
 ClientUser = Annotated[User, Depends(require_client)]
 TutorUser = Annotated[User, Depends(require_tutor)]
+ClientOrAdminUser = Annotated[User, Depends(require_client_or_admin)]

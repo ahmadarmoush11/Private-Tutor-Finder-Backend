@@ -1,15 +1,27 @@
-from fastapi import APIRouter, status
+from typing import Annotated
 
-from app.features.auth.dependencies import CurrentUser, TutorUser
+from fastapi import APIRouter, Query, status
+
+from app.features.auth.dependencies import ClientOrAdminUser, TutorUser
 from app.features.tutor_profiles.dependencies import TutorProfileServiceDep
 from app.features.tutor_profiles.schemas import (
     TutorProfileCreate,
     TutorProfileOut,
     TutorProfileUpdate,
+    TutorSearchParams,
 )
 
 
 router = APIRouter(prefix="/tutors", tags=["tutors"])
+
+
+@router.get("", response_model=list[TutorProfileOut])
+def search_tutors(
+    params: Annotated[TutorSearchParams, Query()],
+    current_user: ClientOrAdminUser,
+    service: TutorProfileServiceDep,
+):
+    return service.search(params)
 
 
 @router.post(
@@ -45,7 +57,7 @@ def update_my_profile(
 )
 def get_tutor_profile(
     user_id: int,
-    current_user: CurrentUser,
+    current_user: ClientOrAdminUser,
     service: TutorProfileServiceDep,
 ):
-    return service.get_profile_for_viewer(user_id, current_user)
+    return service.get_by_user_id(user_id)

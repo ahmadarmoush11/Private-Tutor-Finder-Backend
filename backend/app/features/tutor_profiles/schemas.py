@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.features.tutor_profiles.model import ExperienceLevel
 from app.shared.schemas import OptionalLongText, OptionalText
@@ -40,3 +40,13 @@ class TutorProfileOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     user: UserSummary
+
+
+class TutorSearchParams(BaseModel):
+    first_name: OptionalText = None
+    last_name: OptionalText = None
+    workplace: OptionalText = None
+    degree: OptionalText = None
+    experience_level: list[ExperienceLevel] | None = None
+    limit: int = Field(default=20, ge=1, le=100)
+    offset: int = Field(default=0, ge=0)
