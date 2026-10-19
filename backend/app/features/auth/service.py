@@ -1,5 +1,8 @@
 from app.features.auth.exceptions import InvalidCredentialsError
-from app.features.users.exceptions import EmailAlreadyRegisteredError
+from app.features.users.exceptions import (
+    EmailAlreadyRegisteredError,
+    UsernameAlreadyTakenError,
+)
 from app.core.security import create_access_token, hash_password, verify_password
 from app.db.unit_of_work import UnitOfWork
 from app.features.users.model import User, UserRole
@@ -17,10 +20,13 @@ class AuthService:
     def register(self, data: UserRegister) -> AuthResponse:
         if self.user_repository.get_by_email(data.email):
             raise EmailAlreadyRegisteredError()
+        if self.user_repository.get_by_username(data.username):
+            raise UsernameAlreadyTakenError()
 
         user = User(
             first_name=data.first_name,
             last_name=data.last_name,
+            username=data.username,
             email=data.email,
             password_hash=hash_password(data.password),
             phone_number=data.phone_number,

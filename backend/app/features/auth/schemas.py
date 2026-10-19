@@ -5,11 +5,13 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.features.users.schemas import UserOut
 from app.shared.dates import calculate_age
+from app.shared.usernames import normalize_username
 
 
 class UserRegister(BaseModel):
     first_name: str = Field(min_length=1, max_length=100)
     last_name: str = Field(min_length=1, max_length=100)
+    username: str
     email: EmailStr
     password: str = Field(min_length=8, max_length=72)
     phone_number: str | None = Field(default=None, max_length=20)
@@ -23,6 +25,11 @@ class UserRegister(BaseModel):
         if not value:
             raise ValueError("must not be empty")
         return value
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value: str) -> str:
+        return normalize_username(value)
 
     @field_validator("email")
     @classmethod

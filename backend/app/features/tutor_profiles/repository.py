@@ -1,4 +1,4 @@
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
@@ -38,8 +38,7 @@ class TutorProfileRepository:
     def search(
         self,
         *,
-        first_name: str | None,
-        last_name: str | None,
+        name: str | None,
         workplace: str | None,
         degree: str | None,
         experience_levels: list[ExperienceLevel] | None,
@@ -52,10 +51,15 @@ class TutorProfileRepository:
             .options(selectinload(TutorProfile.user))
         )
 
-        if first_name:
-            statement = statement.where(User.first_name.icontains(first_name, autoescape=True))
-        if last_name:
-            statement = statement.where(User.last_name.icontains(last_name, autoescape=True))
+        if name:
+            for word in name.split():
+                statement = statement.where(
+                    or_(
+                        User.first_name.icontains(word, autoescape=True),
+                        User.last_name.icontains(word, autoescape=True),
+                        User.username.icontains(word, autoescape=True),
+                    )
+                )
         if workplace:
             statement = statement.where(TutorProfile.workplace.icontains(workplace, autoescape=True))
         if degree:

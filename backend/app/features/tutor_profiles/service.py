@@ -38,8 +38,7 @@ class TutorProfileService:
 
     def search(self, params: TutorSearchParams) -> list[TutorProfile]:
         return self.tutor_profile_repository.search(
-            first_name=params.first_name,
-            last_name=params.last_name,
+            name=params.name,
             workplace=params.workplace,
             degree=params.degree,
             experience_levels=params.experience_level,

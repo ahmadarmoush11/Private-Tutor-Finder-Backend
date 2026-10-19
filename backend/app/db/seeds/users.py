@@ -17,18 +17,21 @@ SEED_USERS = [
     {
         "first_name": "Admin",
         "last_name": "User",
+        "username": "admin",
         "email": "admin@tutorfinder.com",
         "role": UserRole.ADMIN,
     },
     {
         "first_name": "Client",
         "last_name": "User",
+        "username": "client",
         "email": "client@tutorfinder.com",
         "role": UserRole.CLIENT,
     },
     {
         "first_name": "Tutor",
         "last_name": "User",
+        "username": "tutor",
         "email": "tutor@tutorfinder.com",
         "role": UserRole.TUTOR,
     },

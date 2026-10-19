@@ -25,6 +25,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     first_name: Mapped[str] = mapped_column(String(100))
     last_name: Mapped[str] = mapped_column(String(100))
+    username: Mapped[str] = mapped_column(String(30), unique=True, index=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     phone_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
@@ -68,4 +69,4 @@ class User(Base):
         return True
 
     def __repr__(self) -> str:
-        return f"<User id={self.id} email={self.email!r} role={self.role.value}>"
+        return f"<User id={self.id} username={self.username!r} role={self.role.value}>"

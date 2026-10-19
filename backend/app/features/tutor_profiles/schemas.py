@@ -43,8 +43,7 @@ class TutorProfileOut(BaseModel):
 
 
 class TutorSearchParams(BaseModel):
-    first_name: OptionalText = None
-    last_name: OptionalText = None
+    name: OptionalText = None
     workplace: OptionalText = None
     degree: OptionalText = None
     experience_level: list[ExperienceLevel] | None = None
