@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from app.features.class_levels.model import ClassLevel
     from app.features.client_profiles.model import ClientProfile
     from app.features.subjects.model import Subject
-    from app.features.applications.model import Application
+    from app.features.post_availabilities.model import PostAvailability
     from app.features.users.model import User
 
 
@@ -96,7 +96,7 @@ class ClientPost(TimestampMixin, Base):
         back_populates="client_posts",
         order_by="Subject.name",
     )
-    applications: Mapped[list["Application"]] = relationship(
+    availabilities: Mapped[list["PostAvailability"]] = relationship(
         back_populates="client_post",
         cascade="all, delete-orphan",
     )
