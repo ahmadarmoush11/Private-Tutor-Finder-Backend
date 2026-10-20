@@ -17,7 +17,6 @@ class EducationLevel(str, enum.Enum):
     ELEMENTARY = "elementary"
     INTERMEDIATE = "intermediate"
     SECONDARY = "secondary"
-    HIGHER_EDUCATION = "higher_education"
 
 
 def determine_education_level(name: str) -> EducationLevel:
@@ -35,9 +34,6 @@ def determine_education_level(name: str) -> EducationLevel:
             return EducationLevel.INTERMEDIATE
         if 10 <= grade <= 12:
             return EducationLevel.SECONDARY
-
-    if "university" in normalized:
-        return EducationLevel.HIGHER_EDUCATION
 
     raise ValueError(f"Cannot determine education level for class level '{name}'")
 

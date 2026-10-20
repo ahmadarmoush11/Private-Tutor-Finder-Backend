@@ -14,7 +14,6 @@ CLASS_LEVEL_NAMES = [
     "KG2",
     "KG3",
     *[f"Grade {grade}" for grade in range(1, 13)],
-    "University",
 ]
 
 

@@ -1,9 +1,14 @@
-from sqlalchemy import func, or_, select
+from sqlalchemy import exists, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.exceptions import ProfileAlreadyExistsError
-from app.features.tutor_profiles.model import ExperienceLevel, TutorProfile
+from app.features.tutor_profiles.model import (
+    ExperienceLevel,
+    TutorProfile,
+    tutor_profile_class_levels,
+    tutor_profile_subjects,
+)
 from app.features.users.model import User
 
 
@@ -42,6 +47,8 @@ class TutorProfileRepository:
         workplace: str | None,
         degree: str | None,
         experience_levels: list[ExperienceLevel] | None,
+        subject_ids: list[int] | None,
+        class_level_ids: list[int] | None,
         limit: int,
         offset: int,
     ) -> list[TutorProfile]:
@@ -66,6 +73,20 @@ class TutorProfileRepository:
             statement = statement.where(TutorProfile.degree.icontains(degree, autoescape=True))
         if experience_levels:
             statement = statement.where(TutorProfile.experience_level.in_(experience_levels))
+        if subject_ids:
+            statement = statement.where(
+                exists().where(
+                    tutor_profile_subjects.c.tutor_profile_id == TutorProfile.id,
+                    tutor_profile_subjects.c.subject_id.in_(subject_ids),
+                )
+            )
+        if class_level_ids:
+            statement = statement.where(
+                exists().where(
+                    tutor_profile_class_levels.c.tutor_profile_id == TutorProfile.id,
+                    tutor_profile_class_levels.c.class_level_id.in_(class_level_ids),
+                )
+            )
 
         statement = (
             statement.order_by(

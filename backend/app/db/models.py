@@ -9,7 +9,12 @@ from app.features.tutor_posts.model import (
     tutor_post_class_levels,
     tutor_post_subjects,
 )
-from app.features.tutor_profiles.model import ExperienceLevel, TutorProfile
+from app.features.tutor_profiles.model import (
+    ExperienceLevel,
+    TutorProfile,
+    tutor_profile_class_levels,
+    tutor_profile_subjects,
+)
 from app.features.tutor_reviews.model import TutorReview
 from app.features.users.model import User, UserRole
 from app.shared.enums import (
@@ -43,4 +48,6 @@ __all__ = [
     "lesson_request_subjects",
     "tutor_post_class_levels",
     "tutor_post_subjects",
+    "tutor_profile_class_levels",
+    "tutor_profile_subjects",
 ]
