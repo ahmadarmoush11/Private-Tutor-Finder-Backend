@@ -10,6 +10,7 @@ from app.features.tutor_posts.model import (
     tutor_post_subjects,
 )
 from app.features.tutor_profiles.model import ExperienceLevel, TutorProfile
+from app.features.tutor_reviews.model import TutorReview
 from app.features.users.model import User, UserRole
 from app.shared.enums import (
     Currency,
@@ -35,6 +36,7 @@ __all__ = [
     "Subject",
     "TutorPost",
     "TutorProfile",
+    "TutorReview",
     "User",
     "UserRole",
     "client_post_subjects",

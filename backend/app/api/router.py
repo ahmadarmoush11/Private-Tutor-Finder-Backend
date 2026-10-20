@@ -10,6 +10,9 @@ from app.features.post_availabilities.tutor_router import router as tutor_availa
 from app.features.subjects.router import router as subjects_router
 from app.features.tutor_posts.router import router as tutor_posts_router
 from app.features.tutor_profiles.router import router as tutor_profiles_router
+from app.features.tutor_reviews.client_router import router as client_reviews_router
+from app.features.tutor_reviews.router import router as tutor_reviews_router
+from app.features.tutor_reviews.tutor_router import router as tutor_received_reviews_router
 
 
 api_router = APIRouter()
@@ -23,3 +26,6 @@ api_router.include_router(lesson_requests_router)
 api_router.include_router(tutor_inbox_router)
 api_router.include_router(post_availabilities_router)
 api_router.include_router(tutor_availabilities_router)
+api_router.include_router(tutor_reviews_router)
+api_router.include_router(client_reviews_router)
+api_router.include_router(tutor_received_reviews_router)
