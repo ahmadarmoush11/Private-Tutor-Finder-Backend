@@ -61,6 +61,21 @@ class TutorProfileOut(BaseModel):
     user: UserSummary
 
 
+class TutorProfileReviewOut(BaseModel):
+    id: int
+    reviewer: UserSummary
+    rating: int
+    comment: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class TutorProfileDetailOut(TutorProfileOut):
+    average_rating: float | None
+    review_count: int
+    reviews: list[TutorProfileReviewOut]
+
+
 class TutorSearchParams(BaseModel):
     name: OptionalText = None
     workplace: OptionalText = None

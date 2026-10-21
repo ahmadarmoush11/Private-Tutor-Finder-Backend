@@ -75,6 +75,11 @@ class TutorReviewService:
         self._get_tutor_profile(tutor_user_id)
         return self.tutor_review_repository.get_by_tutor_id(tutor_user_id)
 
+    def get_average_rating_of_tutor(self, tutor_user_id: int) -> float | None:
+        tutor_profile = self._get_tutor_profile(tutor_user_id)
+        average_rating, _ = self.tutor_review_repository.get_rating_summary(tutor_profile.id)
+        return average_rating
+
     def _get_client_profile_of_user(self, user_id: int) -> ClientProfile:
         client_profile = self.client_profile_repository.get_by_user_id(user_id)
         if client_profile is None:

@@ -6,6 +6,7 @@ from app.features.auth.dependencies import ClientOrAdminUser, TutorUser
 from app.features.tutor_profiles.dependencies import TutorProfileServiceDep
 from app.features.tutor_profiles.schemas import (
     TutorProfileCreate,
+    TutorProfileDetailOut,
     TutorProfileOut,
     TutorProfileUpdate,
     TutorSearchParams,
@@ -37,9 +38,9 @@ def create_my_profile(
     return service.create(current_user, data)
 
 
-@router.get("/me/profile", response_model=TutorProfileOut)
+@router.get("/me/profile", response_model=TutorProfileDetailOut)
 def get_my_profile(current_user: TutorUser, service: TutorProfileServiceDep):
-    return service.get_by_user_id(current_user.id)
+    return service.get_profile_details(current_user.id)
 
 
 @router.patch("/me/profile", response_model=TutorProfileOut)
@@ -53,11 +54,11 @@ def update_my_profile(
 
 @router.get(
     "/{user_id}/profile",
-    response_model=TutorProfileOut,
+    response_model=TutorProfileDetailOut,
 )
 def get_tutor_profile(
     user_id: int,
     current_user: ClientOrAdminUser,
     service: TutorProfileServiceDep,
 ):
-    return service.get_by_user_id(user_id)
+    return service.get_profile_details(user_id)

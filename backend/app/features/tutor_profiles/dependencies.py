@@ -7,6 +7,7 @@ from app.features.class_levels.dependencies import ClassLevelRepositoryDep
 from app.features.subjects.dependencies import SubjectRepositoryDep
 from app.features.tutor_profiles.repository import TutorProfileRepository
 from app.features.tutor_profiles.service import TutorProfileService
+from app.features.tutor_reviews.repository import TutorReviewRepository
 
 
 def get_tutor_profile_repository(db: DbSession) -> TutorProfileRepository:
@@ -22,12 +23,14 @@ def get_tutor_profile_service(
     tutor_profile_repository: TutorProfileRepositoryDep,
     class_level_repository: ClassLevelRepositoryDep,
     subject_repository: SubjectRepositoryDep,
+    db: DbSession,
     uow: UnitOfWorkDep,
 ) -> TutorProfileService:
     return TutorProfileService(
         tutor_profile_repository,
         class_level_repository,
         subject_repository,
+        TutorReviewRepository(db),
         uow,
     )
 

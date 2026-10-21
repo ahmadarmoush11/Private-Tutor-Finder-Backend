@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
@@ -81,6 +81,15 @@ class TutorReviewRepository:
                 .order_by(TutorReview.created_at.desc(), TutorReview.id.desc())
             )
         )
+
+    def get_rating_summary(self, tutor_profile_id: int) -> tuple[float | None, int]:
+        average, count = self.db.execute(
+            select(func.avg(TutorReview.rating), func.count(TutorReview.id))
+            .where(TutorReview.tutor_id == tutor_profile_id)
+        ).one()
+        if average is None:
+            return None, 0
+        return round(float(average), 1), count
 
     def update(self, tutor_review: TutorReview, values: dict) -> TutorReview:
         for field, value in values.items():

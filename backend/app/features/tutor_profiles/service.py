@@ -7,10 +7,14 @@ from app.features.subjects.model import Subject
 from app.features.subjects.repository import SubjectRepository
 from app.db.unit_of_work import UnitOfWork
 from app.features.tutor_profiles.model import TutorProfile
+from app.features.tutor_reviews.repository import TutorReviewRepository
 from app.features.users.model import User
 from app.features.tutor_profiles.repository import TutorProfileRepository
 from app.features.tutor_profiles.schemas import (
     TutorProfileCreate,
+    TutorProfileDetailOut,
+    TutorProfileOut,
+    TutorProfileReviewOut,
     TutorProfileUpdate,
     TutorSearchParams,
 )
@@ -22,11 +26,13 @@ class TutorProfileService:
         tutor_profile_repository: TutorProfileRepository,
         class_level_repository: ClassLevelRepository,
         subject_repository: SubjectRepository,
+        tutor_review_repository: TutorReviewRepository,
         uow: UnitOfWork,
     ):
         self.tutor_profile_repository = tutor_profile_repository
         self.class_level_repository = class_level_repository
         self.subject_repository = subject_repository
+        self.tutor_review_repository = tutor_review_repository
         self.uow = uow
 
     def get_by_user_id(self, user_id: int) -> TutorProfile:
@@ -34,6 +40,30 @@ class TutorProfileService:
         if profile is None:
             raise ProfileNotFoundError("Tutor profile not found")
         return profile
+
+    def get_profile_details(self, user_id: int) -> TutorProfileDetailOut:
+        profile = self.get_by_user_id(user_id)
+        average_rating, review_count = self.tutor_review_repository.get_rating_summary(
+            profile.id
+        )
+        reviews = self.tutor_review_repository.get_by_tutor_id(user_id)
+
+        return TutorProfileDetailOut(
+            **TutorProfileOut.model_validate(profile).model_dump(),
+            average_rating=average_rating,
+            review_count=review_count,
+            reviews=[
+                TutorProfileReviewOut(
+                    id=review.id,
+                    reviewer=review.client.user,
+                    rating=review.rating,
+                    comment=review.comment,
+                    created_at=review.created_at,
+                    updated_at=review.updated_at,
+                )
+                for review in reviews
+            ],
+        )
 
     def create(self, user: User, data: TutorProfileCreate) -> TutorProfile:
         if self.tutor_profile_repository.get_by_user_id(user.id):
