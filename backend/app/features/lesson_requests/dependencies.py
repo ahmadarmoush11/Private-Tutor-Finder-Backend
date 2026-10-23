@@ -9,6 +9,7 @@ from app.features.lesson_requests.repository import LessonRequestRepository
 from app.features.lesson_requests.service import LessonRequestService
 from app.features.subjects.dependencies import SubjectRepositoryDep
 from app.features.tutor_profiles.dependencies import TutorProfileRepositoryDep
+from app.features.notifications.dependencies import NotificationServiceDep
 
 
 def get_lesson_request_repository(db: DbSession) -> LessonRequestRepository:
@@ -26,6 +27,7 @@ def get_lesson_request_service(
     tutor_profile_repository: TutorProfileRepositoryDep,
     subject_repository: SubjectRepositoryDep,
     class_level_repository: ClassLevelRepositoryDep,
+    notification_service: NotificationServiceDep,
     uow: UnitOfWorkDep,
 ) -> LessonRequestService:
     return LessonRequestService(
@@ -34,6 +36,7 @@ def get_lesson_request_service(
         tutor_profile_repository,
         subject_repository,
         class_level_repository,
+        notification_service,
         uow,
     )
 

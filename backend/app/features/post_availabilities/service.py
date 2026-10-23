@@ -17,6 +17,7 @@ from app.features.tutor_profiles.model import TutorProfile
 from app.features.tutor_profiles.repository import TutorProfileRepository
 from app.features.users.model import User, UserRole
 from app.shared.enums import PostStatus
+from app.features.notifications.service import NotificationService
 
 
 class PostAvailabilityService:
@@ -25,11 +26,13 @@ class PostAvailabilityService:
         post_availability_repository: PostAvailabilityRepository,
         tutor_profile_repository: TutorProfileRepository,
         client_post_repository: ClientPostRepository,
+        notification_service: NotificationService,
         uow: UnitOfWork,
     ):
         self.post_availability_repository = post_availability_repository
         self.tutor_profile_repository = tutor_profile_repository
         self.client_post_repository = client_post_repository
+        self.notification_service=notification_service
         self.uow = uow
 
     def mark_available(self, user_id: int, post_id: int) -> PostAvailability:
@@ -44,6 +47,8 @@ class PostAvailabilityService:
         availability = PostAvailability(tutor_id=tutor_profile.id, client_post_id=post.id)
         with self.uow:
             self.post_availability_repository.create(availability)
+            self.notification_service.create_for_tutor_avaiable(user_id,post)
+            
         return self.post_availability_repository.get(tutor_profile.id, post.id)
 
     def withdraw(self, user_id: int, post_id: int) -> None:

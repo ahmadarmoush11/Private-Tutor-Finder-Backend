@@ -13,6 +13,7 @@ from app.features.tutor_profiles.router import router as tutor_profiles_router
 from app.features.tutor_reviews.client_router import router as client_reviews_router
 from app.features.tutor_reviews.router import router as tutor_reviews_router
 from app.features.tutor_reviews.tutor_router import router as tutor_received_reviews_router
+from app.features.notifications.router import router as notifications_router
 
 
 api_router = APIRouter()
@@ -29,3 +30,4 @@ api_router.include_router(tutor_availabilities_router)
 api_router.include_router(tutor_reviews_router)
 api_router.include_router(client_reviews_router)
 api_router.include_router(tutor_received_reviews_router)
+api_router.include_router(notifications_router)

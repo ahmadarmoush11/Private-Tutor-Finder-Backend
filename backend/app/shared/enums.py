@@ -29,3 +29,11 @@ class PriceUnit(str, enum.Enum):
     SESSION = "session"
     WEEK = "week"
     MONTH = "month"
+
+
+class NotificationType(str, enum.Enum):
+    TUTOR_AVAILABLE = "tutor_available"
+    LESSON_REQUEST_RECEIVED = "lesson_request_received"
+    LESSON_REQUEST_ACCEPTED = "lesson_request_accepted"
+    LESSON_REQUEST_REJECTED = "lesson_request_rejected"
+    LESSON_REQUEST_CONFIRMED = "lesson_request_confirmed"

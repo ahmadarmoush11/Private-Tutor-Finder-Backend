@@ -18,6 +18,8 @@ from app.features.subjects.repository import SubjectRepository
 from app.features.tutor_profiles.model import TutorProfile
 from app.features.tutor_profiles.repository import TutorProfileRepository
 from app.shared.enums import RequestStatus
+from app.features.notifications.service import NotificationService
+
 
 
 class LessonRequestService:
@@ -28,6 +30,7 @@ class LessonRequestService:
         tutor_profile_repository: TutorProfileRepository,
         subject_repository: SubjectRepository,
         class_level_repository: ClassLevelRepository,
+        notification_service: NotificationService,
         uow: UnitOfWork,
     ):
         self.lesson_request_repository = lesson_request_repository
@@ -35,6 +38,7 @@ class LessonRequestService:
         self.tutor_profile_repository = tutor_profile_repository
         self.subject_repository = subject_repository
         self.class_level_repository = class_level_repository
+        self.notification_service=notification_service
         self.uow = uow
 
     def create(self, user_id: int, data: LessonRequestCreate) -> LessonRequest:
@@ -55,8 +59,10 @@ class LessonRequestService:
             message=data.message,
         )
 
+
         with self.uow:
             lesson_request = self.lesson_request_repository.create(lesson_request)
+            self.notification_service.create_for_lesson_request_received(lesson_request)
         return lesson_request
 
     def get_by_id_for_client(self, user_id: int, lesson_request_id: int) -> LessonRequest:
@@ -115,6 +121,12 @@ class LessonRequestService:
                 lesson_request,
                 new_status,
             )
+
+            if new_status==RequestStatus.ACCEPTED:
+                self.notification_service.create_for_lesson_request_accepted(lesson_request)
+            elif new_status==RequestStatus.REJECTED:
+                self.notification_service.create_for_lesson_request_rejected(lesson_request)
+
         return lesson_request
 
     def _get_tutor_profile(self, tutor_user_id: int) -> TutorProfile:
