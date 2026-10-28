@@ -37,3 +37,10 @@ class NotificationType(str, enum.Enum):
     LESSON_REQUEST_ACCEPTED = "lesson_request_accepted"
     LESSON_REQUEST_REJECTED = "lesson_request_rejected"
     LESSON_REQUEST_CONFIRMED = "lesson_request_confirmed"
+
+
+class VerificationStatus(str, enum.Enum):
+    PENDING = "pending"
+    VERIFIED = "verified"
+    REJECTED = "rejected"
+    CANCELLED = "cancelled"
