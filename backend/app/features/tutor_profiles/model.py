@@ -8,6 +8,7 @@ from app.db.base import Base
 from app.db.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.features.areas.model import Area
     from app.features.class_levels.model import ClassLevel
     from app.features.subjects.model import Subject
     from app.features.tutor_posts.model import TutorPost
@@ -68,6 +69,11 @@ class TutorProfile(TimestampMixin, Base):
     workplace: Mapped[str | None] = mapped_column(String(150), nullable=True)
     degree: Mapped[str | None] = mapped_column(String(150), nullable=True)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    area_id: Mapped[int | None] = mapped_column(
+        ForeignKey("areas.id", ondelete="RESTRICT"),
+        nullable=True,
+        index=True,
+    )
     experience_level: Mapped[ExperienceLevel] = mapped_column(
         Enum(
             ExperienceLevel,
@@ -77,6 +83,7 @@ class TutorProfile(TimestampMixin, Base):
     )
 
     user: Mapped["User"] = relationship(back_populates="tutor_profile")
+    area: Mapped["Area | None"] = relationship(lazy="selectin")
     class_levels: Mapped[list["ClassLevel"]] = relationship(
         secondary=tutor_profile_class_levels,
         order_by="ClassLevel.id",

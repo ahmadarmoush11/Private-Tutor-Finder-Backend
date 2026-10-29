@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.features.areas.schemas import AreaOut
 from app.features.class_levels.schemas import ClassLevelOut
 from app.features.subjects.schemas import SubjectOut
 
@@ -15,6 +16,7 @@ class TutorProfileCreate(BaseModel):
     degree: OptionalText = None
     summary: OptionalLongText = None
     experience_level: ExperienceLevel
+    area_id: int
     class_level_ids: list[int] = Field(min_length=1)
     subject_ids: list[int] = Field(min_length=1)
 
@@ -29,10 +31,11 @@ class TutorProfileUpdate(BaseModel):
     degree: OptionalText = None
     summary: OptionalLongText = None
     experience_level: ExperienceLevel | None = None
+    area_id: int | None = None
     class_level_ids: list[int] | None = Field(default=None, min_length=1)
     subject_ids: list[int] | None = Field(default=None, min_length=1)
 
-    @field_validator("experience_level", "class_level_ids", "subject_ids")
+    @field_validator("experience_level", "area_id", "class_level_ids", "subject_ids")
     @classmethod
     def not_null(cls, value):
         if value is None:
@@ -54,6 +57,7 @@ class TutorProfileOut(BaseModel):
     degree: str | None
     summary: str | None
     experience_level: ExperienceLevel
+    area: AreaOut | None
     class_levels: list[ClassLevelOut]
     subjects: list[SubjectOut]
     created_at: datetime

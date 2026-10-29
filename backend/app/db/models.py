@@ -1,3 +1,4 @@
+from app.features.areas.model import Area
 from app.features.class_levels.model import ClassLevel, EducationLevel
 from app.features.client_posts.model import ClientPost, client_post_subjects
 from app.features.client_profiles.model import ClientProfile
@@ -32,6 +33,7 @@ from app.shared.enums import (
 )
 
 __all__ = [
+    "Area",
     "ClassLevel",
     "ClientPost",
     "ClientProfile",

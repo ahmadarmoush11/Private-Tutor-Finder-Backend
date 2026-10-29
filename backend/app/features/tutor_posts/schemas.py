@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.features.areas.schemas import AreaOut
 from app.features.class_levels.schemas import ClassLevelOut
 from app.features.users.schemas import UserSummary
 from app.shared.enums import Currency, LessonLocation, PostStatus, PriceUnit
@@ -14,8 +15,7 @@ class TutorPostCreate(BaseModel):
     class_level_ids: list[int] = Field(min_length=1)
     subject_ids: list[int] = Field(min_length=1)
     lesson_location: LessonLocation = LessonLocation.ANY
-    location: OptionalText = None
-    address_details: str = Field(min_length=1, max_length=255)
+    area_id: int
     phone_number: str = Field(min_length=1, max_length=20)
     description: str = Field(min_length=1)
     price: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
@@ -33,8 +33,7 @@ class TutorPostUpdate(BaseModel):
     subject_ids: list[int] | None = Field(default=None, min_length=1)
     lesson_location: LessonLocation | None = None
     status: PostStatus | None = None
-    location: OptionalText = None
-    address_details: str | None = Field(default=None, min_length=1, max_length=255)
+    area_id: int | None = None
     phone_number: str | None = Field(default=None, min_length=1, max_length=20)
     description: str | None = Field(default=None, min_length=1)
     price: Decimal | None = Field(default=None, gt=0, max_digits=12, decimal_places=2)
@@ -46,7 +45,7 @@ class TutorPostUpdate(BaseModel):
         "subject_ids",
         "lesson_location",
         "status",
-        "address_details",
+        "area_id",
         "phone_number",
         "description",
         "price",
@@ -74,8 +73,7 @@ class TutorPostResponse(BaseModel):
     subjects: list[SubjectOut]
     lesson_location: LessonLocation
     status: PostStatus
-    location: str | None
-    address_details: str
+    area: AreaOut | None
     phone_number: str
     description: str
     price: Decimal | None

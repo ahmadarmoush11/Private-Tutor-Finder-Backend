@@ -1,19 +1,16 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
-from app.shared.schemas import OptionalText
 from app.features.users.schemas import UserSummary
 
 
 class ClientProfileCreate(BaseModel):
-    grade: int | None = Field(default=None, ge=1, le=12)
-    school: OptionalText = None
+    pass
 
 
 class ClientProfileUpdate(BaseModel):
-    grade: int | None = Field(default=None, ge=1, le=12)
-    school: OptionalText = None
+    pass
 
 
 class ClientProfileOut(BaseModel):
@@ -21,8 +18,6 @@ class ClientProfileOut(BaseModel):
 
     id: int
     user_id: int
-    grade: int | None
-    school: str | None
     created_at: datetime
     updated_at: datetime
     user: UserSummary

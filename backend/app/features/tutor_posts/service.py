@@ -6,6 +6,8 @@ from app.core.exceptions import (
 )
 from app.features.class_levels.exceptions import ClassLevelNotFoundError
 from app.features.subjects.exceptions import SubjectNotFoundError
+from app.features.areas.exceptions import AreaNotFoundError
+from app.features.areas.repository import AreaRepository
 from app.db.unit_of_work import UnitOfWork
 from app.features.users.model import User, UserRole
 from app.features.class_levels.model import ClassLevel
@@ -26,17 +28,20 @@ class TutorPostService:
         tutor_profile_repository: TutorProfileRepository,
         class_level_repository: ClassLevelRepository,
         subject_repository: SubjectRepository,
+        area_repository: AreaRepository,
         uow: UnitOfWork,
     ):
         self.tutor_post_repository = tutor_post_repository
         self.tutor_profile_repository = tutor_profile_repository
         self.class_level_repository = class_level_repository
         self.subject_repository = subject_repository
+        self.area_repository = area_repository
         self.uow = uow
 
     def create(self, user_id: int, data: TutorPostCreate) -> TutorPost:
         tutor_profile = self._get_tutor_profile_of_user(user_id)
         class_levels = self._get_class_levels(data.class_level_ids)
+        self._ensure_area_exists(data.area_id)
         subjects = self._get_subjects(data.subject_ids)
 
         post = TutorPost(
@@ -80,6 +85,9 @@ class TutorPostService:
     ) -> TutorPost:
         post = self._get_own_post(user_id, post_id)
         values = data.model_dump(exclude_unset=True)
+
+        if "area_id" in values:
+            self._ensure_area_exists(values["area_id"])
 
         if "class_level_ids" in values:
             values["class_levels"] = self._get_class_levels(
@@ -138,3 +146,7 @@ class TutorPostService:
     def _ensure_can_view(viewer: User, owner_user_id: int) -> None:
         if viewer.role == UserRole.TUTOR and viewer.id != owner_user_id:
             raise ViewAccessDeniedError("Tutors can only view their own posts")
+
+    def _ensure_area_exists(self, area_id: int) -> None:
+        if self.area_repository.get_by_id(area_id) is None:
+            raise AreaNotFoundError()

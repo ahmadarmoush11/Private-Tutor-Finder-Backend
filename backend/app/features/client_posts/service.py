@@ -9,6 +9,8 @@ from app.core.exceptions import (
 )
 from app.features.class_levels.exceptions import ClassLevelNotFoundError
 from app.features.subjects.exceptions import SubjectNotFoundError
+from app.features.areas.exceptions import AreaNotFoundError
+from app.features.areas.repository import AreaRepository
 from app.db.unit_of_work import UnitOfWork
 from app.features.users.model import User, UserRole
 from app.features.class_levels.repository import ClassLevelRepository
@@ -28,17 +30,20 @@ class ClientPostService:
         client_profile_repository: ClientProfileRepository,
         class_level_repository: ClassLevelRepository,
         subject_repository: SubjectRepository,
+        area_repository: AreaRepository,
         uow: UnitOfWork,
     ):
         self.client_post_repository = client_post_repository
         self.client_profile_repository = client_profile_repository
         self.class_level_repository = class_level_repository
         self.subject_repository = subject_repository
+        self.area_repository = area_repository
         self.uow = uow
 
     def create(self, user_id: int, data: ClientPostCreate) -> ClientPost:
         client_profile = self._get_client_profile_of_user(user_id)
         self._ensure_class_level_exists(data.class_level_id)
+        self._ensure_area_exists(data.area_id)
         subjects = self._get_subjects(data.subject_ids)
 
         post = ClientPost(
@@ -81,6 +86,9 @@ class ClientPostService:
     ) -> ClientPost:
         post = self._get_own_post(user_id, post_id)
         values = data.model_dump(exclude_unset=True)
+
+        if "area_id" in values:
+            self._ensure_area_exists(values["area_id"])
 
         if "class_level_id" in values:
             self._ensure_class_level_exists(values["class_level_id"])
@@ -149,3 +157,7 @@ class ClientPostService:
     def _ensure_can_view(viewer: User, owner_user_id: int) -> None:
         if viewer.role == UserRole.CLIENT and viewer.id != owner_user_id:
             raise ViewAccessDeniedError("Clients can only view their own posts")
+
+    def _ensure_area_exists(self, area_id: int) -> None:
+        if self.area_repository.get_by_id(area_id) is None:
+            raise AreaNotFoundError()

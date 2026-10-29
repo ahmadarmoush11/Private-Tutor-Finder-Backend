@@ -9,6 +9,7 @@ from app.db.mixins import TimestampMixin
 from app.shared.enums import Currency, LessonLocation, PostStatus, PriceUnit
 
 if TYPE_CHECKING:
+    from app.features.areas.model import Area
     from app.features.class_levels.model import ClassLevel
     from app.features.client_profiles.model import ClientProfile
     from app.features.subjects.model import Subject
@@ -66,8 +67,11 @@ class ClientPost(TimestampMixin, Base):
         server_default=LessonLocation.ANY.value,
         index=True,
     )
-    location: Mapped[str | None] = mapped_column(String(150), nullable=True)
-    address_details: Mapped[str] = mapped_column(String(255))
+    area_id: Mapped[int | None] = mapped_column(
+        ForeignKey("areas.id", ondelete="RESTRICT"),
+        nullable=True,
+        index=True,
+    )
     phone_number: Mapped[str] = mapped_column(String(20))
     description: Mapped[str] = mapped_column(Text)
     budget_min: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
@@ -90,6 +94,7 @@ class ClientPost(TimestampMixin, Base):
     )
 
     client: Mapped["ClientProfile"] = relationship(back_populates="posts")
+    area: Mapped["Area | None"] = relationship(lazy="selectin")
     class_level: Mapped["ClassLevel"] = relationship(back_populates="posts")
     subjects: Mapped[list["Subject"]] = relationship(
         secondary=client_post_subjects,

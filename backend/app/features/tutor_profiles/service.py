@@ -5,6 +5,8 @@ from app.features.class_levels.repository import ClassLevelRepository
 from app.features.subjects.exceptions import SubjectNotFoundError
 from app.features.subjects.model import Subject
 from app.features.subjects.repository import SubjectRepository
+from app.features.areas.exceptions import AreaNotFoundError
+from app.features.areas.repository import AreaRepository
 from app.db.unit_of_work import UnitOfWork
 from app.features.tutor_profiles.model import TutorProfile
 from app.features.tutor_reviews.repository import TutorReviewRepository
@@ -27,12 +29,14 @@ class TutorProfileService:
         class_level_repository: ClassLevelRepository,
         subject_repository: SubjectRepository,
         tutor_review_repository: TutorReviewRepository,
+        area_repository: AreaRepository,
         uow: UnitOfWork,
     ):
         self.tutor_profile_repository = tutor_profile_repository
         self.class_level_repository = class_level_repository
         self.subject_repository = subject_repository
         self.tutor_review_repository = tutor_review_repository
+        self.area_repository = area_repository
         self.uow = uow
 
     def get_by_user_id(self, user_id: int) -> TutorProfile:
@@ -68,6 +72,7 @@ class TutorProfileService:
     def create(self, user: User, data: TutorProfileCreate) -> TutorProfile:
         if self.tutor_profile_repository.get_by_user_id(user.id):
             raise ProfileAlreadyExistsError()
+        self._ensure_area_exists(data.area_id)
         profile = TutorProfile(
             user_id=user.id,
             class_levels=self._get_class_levels(data.class_level_ids),
@@ -81,6 +86,9 @@ class TutorProfileService:
     def update(self, user: User, data: TutorProfileUpdate) -> TutorProfile:
         profile = self.get_by_user_id(user.id)
         values = data.model_dump(exclude_unset=True)
+
+        if "area_id" in values:
+            self._ensure_area_exists(values["area_id"])
 
         if "class_level_ids" in values:
             values["class_levels"] = self._get_class_levels(values.pop("class_level_ids"))
@@ -124,3 +132,7 @@ class TutorProfileService:
         if missing_ids:
             raise SubjectNotFoundError(details={"missing_ids": missing_ids})
         return subjects
+
+    def _ensure_area_exists(self, area_id: int) -> None:
+        if self.area_repository.get_by_id(area_id) is None:
+            raise AreaNotFoundError()

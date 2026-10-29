@@ -1,3 +1,4 @@
+from app.db.seeds.areas import seed_areas
 from app.db.seeds.class_levels import seed_class_levels
 from app.db.seeds.subjects import seed_subjects
 from app.db.seeds.users import seed_users
@@ -6,6 +7,7 @@ from app.db.session import SessionLocal
 
 def run_seeds() -> None:
     with SessionLocal() as db:
+        seed_areas(db)
         seed_class_levels(db)
         seed_subjects(db)
         seed_users(db)
