@@ -1,11 +1,13 @@
 import enum
+from datetime import date
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, Enum, ForeignKey, String, Table, Text
+from sqlalchemy import Column, Date, Enum, ForeignKey, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.db.mixins import TimestampMixin
+from app.shared.dates import calculate_age
 
 if TYPE_CHECKING:
     from app.features.areas.model import Area
@@ -66,6 +68,7 @@ class TutorProfile(TimestampMixin, Base):
         unique=True,
         index=True,
     )
+    date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
     workplace: Mapped[str | None] = mapped_column(String(150), nullable=True)
     degree: Mapped[str | None] = mapped_column(String(150), nullable=True)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -106,3 +109,9 @@ class TutorProfile(TimestampMixin, Base):
         back_populates="tutor",
         cascade="all, delete-orphan",
     )
+
+    @property
+    def age(self) -> int | None:
+        if self.date_of_birth is None:
+            return None
+        return calculate_age(self.date_of_birth)

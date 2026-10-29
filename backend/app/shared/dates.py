@@ -8,3 +8,11 @@ def calculate_age(date_of_birth: date, today: date | None = None) -> int:
         date_of_birth.day,
     )
     return today.year - date_of_birth.year - (0 if had_birthday_this_year else 1)
+
+
+def validate_date_of_birth(value: date) -> date:
+    if value > date.today():
+        raise ValueError("cannot be in the future")
+    if calculate_age(value) > 120:
+        raise ValueError("is not a realistic date of birth")
+    return value

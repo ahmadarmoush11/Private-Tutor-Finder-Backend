@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -7,11 +7,13 @@ from app.features.class_levels.schemas import ClassLevelOut
 from app.features.subjects.schemas import SubjectOut
 
 from app.features.tutor_profiles.model import ExperienceLevel
+from app.shared.dates import validate_date_of_birth
 from app.shared.schemas import OptionalLongText, OptionalText, unique_ids
 from app.features.users.schemas import UserSummary
 
 
 class TutorProfileCreate(BaseModel):
+    date_of_birth: date
     workplace: OptionalText = None
     degree: OptionalText = None
     summary: OptionalLongText = None
@@ -25,8 +27,14 @@ class TutorProfileCreate(BaseModel):
     def remove_duplicate_ids(cls, value: list[int]) -> list[int]:
         return unique_ids(value)
 
+    @field_validator("date_of_birth")
+    @classmethod
+    def realistic_date_of_birth(cls, value: date) -> date:
+        return validate_date_of_birth(value)
+
 
 class TutorProfileUpdate(BaseModel):
+    date_of_birth: date | None = None
     workplace: OptionalText = None
     degree: OptionalText = None
     summary: OptionalLongText = None
@@ -41,6 +49,13 @@ class TutorProfileUpdate(BaseModel):
         if value is None:
             raise ValueError("cannot be null")
         return value
+
+    @field_validator("date_of_birth")
+    @classmethod
+    def realistic_date_of_birth(cls, value: date | None) -> date:
+        if value is None:
+            raise ValueError("cannot be null")
+        return validate_date_of_birth(value)
 
     @field_validator("class_level_ids", "subject_ids")
     @classmethod
